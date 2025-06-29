@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/gradient_background"
+    tools:context=".RegisterActivity">
+
+<TextView
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="Register"
+android:textSize="24sp"
+android:textColor="@color/vibrantAccent"
+    android:textStyle="bold"
+    android:layout_marginBottom="24dp"
+    android:layout_gravity="center" />
+
+<EditText
+android:id="@+id/emailEditText"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:hint="Email"
+android:inputType="textEmailAddress"
+android:layout_marginTop="20dp"
+android:layout_marginBottom="16dp"
+android:layout_marginStart="30dp"
+android:layout_marginEnd="30dp"
+android:textColor="@color/textColor"
+    android:textColorHint="@color/hintColor"
+android:backgroundTint="@color/vibrantAccent" />
+
+<EditText
+android:id="@+id/passwordEditText"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:hint="Password"
+android:inputType="textPassword"
+android:layout_marginTop="20dp"
+android:layout_marginBottom="24dp"
+android:layout_marginStart="30dp"
+android:layout_marginEnd="30dp"
+android:textColor="@color/textColor"
+    android:textColorHint="@color/hintColor"
+android:backgroundTint="@color/vibrantAccent" />
+
+<Button
+android:id="@+id/registerButton"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:text="Register"
+    android:padding="16dp"
+    android:background="@drawable/button_background"
+    android:elevation="4dp"
+    android:layout_marginTop="30dp"
+android:textColor="@android:color/black"
+    android:backgroundTint="@color/lightblue"
+    android:layout_marginBottom="8dp"
+    android:layout_marginStart="30dp"
+    android:layout_marginEnd="30dp" />
+
+    </LinearLayout>
+

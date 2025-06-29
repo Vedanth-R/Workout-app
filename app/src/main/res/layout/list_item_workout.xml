@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/exerciseTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:text="Exercise"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textColor="@color/vibrantAccent"/>
+
+    <EditText
+        android:id="@+id/repsEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:hint="Reps"
+        android:inputType="number"
+        android:maxLines="1"
+        android:textColor="@color/textColor"
+        android:textColorHint="@color/hintColor"
+        android:backgroundTint="@color/vibrantAccent"/>
+
+    <EditText
+        android:id="@+id/weightEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:hint="Weight"
+        android:inputType="numberDecimal"
+        android:maxLines="1"
+        android:textColor="@color/textColor"
+        android:textColorHint="@color/hintColor"
+        android:backgroundTint="@color/vibrantAccent"/>
+
+    <ImageButton
+        android:paddingTop="10sp"
+        android:id="@+id/deleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/deletebutton"
+        app:tint="@color/vibrantAccent" />
+</LinearLayout>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_workouts"
+        android:icon="@drawable/ic_workouts"
+        android:title="Workouts" />
+    <item
+        android:id="@+id/navigation_stretches"
+        android:icon="@drawable/stretchingicon"
+        android:title="Yoga" />
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@drawable/ic_home"
+        android:title="Home" />
+    <item
+        android:id="@+id/navigation_stopwatch"
+        android:icon="@drawable/ic_timer"
+        android:title="Stopwatch" />
+    <item
+        android:id="@+id/navigation_settings"
+        android:icon="@drawable/profile"
+        android:title="Profile" />
+
+</menu>

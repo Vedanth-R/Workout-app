@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Back Button -->
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_action_name"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/vibrantAccent" />
+
+        <!-- Title TextView -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Profile and Goals"
+            android:textSize="24sp"
+            android:textColor="@color/vibrantAccent"
+            android:layout_gravity="center"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/textViewCurrentAge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Current Age:"
+            android:textColor="@color/vibrantAccent"
+            android:layout_marginTop="8dp" />
+
+        <EditText
+            android:id="@+id/editTextAge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Age"
+            android:inputType="number"
+            android:textColor="@color/textColor"
+            android:textColorHint="@color/hintColor"
+            android:backgroundTint="@color/vibrantAccent"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/textViewCurrentWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Current Weight:"
+            android:textColor="@color/vibrantAccent"
+            android:layout_marginTop="8dp" />
+
+        <EditText
+            android:id="@+id/editTextWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Weight (kg)"
+            android:inputType="numberDecimal"
+            android:textColor="@color/textColor"
+            android:textColorHint="@color/hintColor"
+            android:backgroundTint="@color/vibrantAccent"
+            android:layout_marginTop="8dp" />
+
+        <!-- Height Section -->
+        <TextView
+            android:id="@+id/textViewCurrentHeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Current Height:"
+            android:textColor="@color/vibrantAccent"
+            android:layout_marginTop="8dp" />
+
+        <EditText
+            android:id="@+id/editTextHeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Height (cm)"
+            android:inputType="numberDecimal"
+            android:textColor="@color/textColor"
+            android:textColorHint="@color/hintColor"
+            android:backgroundTint="@color/vibrantAccent"
+            android:layout_marginTop="8dp" />
+
+        <!-- Gender Section -->
+        <TextView
+            android:id="@+id/textViewCurrentPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Gender:"
+            android:textColor="@color/vibrantAccent"
+            android:layout_marginTop="8dp" />
+
+        <EditText
+            android:id="@+id/editTextNewPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Gender"
+            android:textColor="@color/textColor"
+            android:textColorHint="@color/hintColor"
+            android:backgroundTint="@color/vibrantAccent"
+            android:layout_marginTop="8dp" />
+
+        <!-- Daily Reminder Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Set Daily Reminder"
+            android:textColor="@color/vibrantAccent"
+            android:layout_marginTop="12dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+/>
+
+        <TextView
+            android:id="@+id/textViewCurrentGoal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Current Reminder:"
+            android:textColor="@color/vibrantAccent"
+            android:layout_marginTop="8dp" />
+
+        <EditText
+            android:id="@+id/editTextGoals"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter The Message"
+            android:textColor="@color/textColor"
+            android:textColorHint="@color/hintColor"
+            android:backgroundTint="@color/vibrantAccent"
+            android:layout_marginTop="8dp" />
+
+
+        <TimePicker
+            android:id="@+id/timePicker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:timePickerMode="spinner"
+            android:theme="@style/CustomTimePickerStyle"
+/>
+
+        <Button
+            android:id="@+id/buttonSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save"
+            android:textColor="@android:color/black"
+            android:backgroundTint="#A7B8AE"
+            android:layout_marginTop="16dp"
+/>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="About Our Creator: Vedanth always loved working out and would always find some way to drag his mom into his routines as a young child. However, his parents and grandparents found workout apps to confusing and dislike the amount of ads and premium benefits that were advertised. Vedanth also noticed people in his community finding excuses to not work out. By creating a simple yet exceptionally functional app, Vedanth has allowed his family and community to stay healthy together."
+            android:textColor="@color/lightblue"
+            android:layout_marginTop="16dp" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/windowBackground"
+            app:menu="@menu/bottom_nav_menu" />
+
+    </LinearLayout>
+</ScrollView>
+
+
+
+

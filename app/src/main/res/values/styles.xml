@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Custom TimePicker style -->
+    <style name="CustomTimePickerStyle" parent="Theme.MaterialComponents.Light">
+        <!-- Text color for TimePicker spinner mode -->
+        <item name="android:textColorPrimary">@color/vibrantAccent</item>
+        <item name="android:textColorSecondary">@color/vibrantAccent</item>
+        <item name="android:textColor">@color/vibrantAccent</item>
+    </style>
+</resources>

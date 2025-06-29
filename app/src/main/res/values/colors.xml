@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="purple">#cbc9d1</color>
+    <color name="lightblue">#A7B8AE</color>
+        <!-- Background colors -->
+        <color name="backgroundDark">#121212</color> <!-- Dark background for the layout -->
+        <color name="backgroundLight">#1f1f1f</color> <!-- Slightly lighter for contrast -->
+
+        <!-- Text colors -->
+        <color name="textColor">#E0E0E0</color> <!-- Light gray for text on dark background -->
+        <color name="hintColor">#A8A8A8</color> <!-- Slightly lighter gray for hint text -->
+
+        <!-- Vibrant accent color -->
+        <color name="vibrantAccent">#ff80a8
+
+        </color> <!-- Vibrant pink accent color for buttons, highlights -->
+
+
+</resources>
