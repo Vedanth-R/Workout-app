@@ -69,7 +69,7 @@ public class StopwatchActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 
         workoutList = new ArrayList<>();
-        workoutAdapter = new WorkoutAdapter(workoutList, this);
+        workoutAdapter = new WorkoutAdapter(workoutList, this, null);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(workoutAdapter);
 
