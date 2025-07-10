@@ -43,7 +43,7 @@
         android:layout_height="50dp"
         android:layout_marginTop="28dp"
         android:background="@drawable/button_background"
-        android:text="Stop"
+        android:text="Pause"
         android:textColor="@android:color/black"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
