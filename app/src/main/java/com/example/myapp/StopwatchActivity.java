@@ -44,7 +44,7 @@ public class StopwatchActivity extends AppCompatActivity {
             timeInMilliseconds = System.currentTimeMillis() - startTime;
             updateTime = timeSwapBuff + timeInMilliseconds;
             int secs = (int) (updateTime / 1000);
-            int mins = secs / 30;
+            int mins = secs / 60;
             secs = secs % 60;
             int milliseconds = (int) (updateTime % 1000);
             stopwatchTimer.setText("" + mins + ":" + String.format("%02d", secs) + ":" + String.format("%03d", milliseconds));
