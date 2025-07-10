@@ -14,7 +14,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
     private List<Workout> workoutList;
     private Context context;
 
-    public WorkoutAdapter(List<Workout> workoutList, Context context) {
+    public WorkoutAdapter(List<Workout> workoutList, Context context, Object o) {
         this.workoutList = workoutList;
         this.context = context;
     }
