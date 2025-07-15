@@ -28,7 +28,8 @@ import java.util.Set;
 public class StopwatchActivity extends AppCompatActivity {
     private TextView stopwatchTimer;
     ArrayList<String> listNames;
-    private Button startButton, stopButton, resetButton;
+    private Button startButton, stopButton, resetButton, logWorkoutButton;
+    private boolean loggedToday = false;
     private RecyclerView recyclerView;
     private WorkoutAdapter workoutAdapter;
     private static final String PREFS_NAME = "workout_prefs";
@@ -62,6 +63,7 @@ public class StopwatchActivity extends AppCompatActivity {
         startButton = findViewById(R.id.start_button);
         stopButton = findViewById(R.id.stop_button);
         resetButton = findViewById(R.id.reset_button);
+        logWorkoutButton = findViewById(R.id.logWorkoutButton);
         ImageButton backButton=findViewById(R.id.backButton);
         recyclerView = findViewById(R.id.recycler_view);
 
@@ -144,6 +146,19 @@ public class StopwatchActivity extends AppCompatActivity {
                 startButton.setVisibility(View.VISIBLE);
                 stopButton.setVisibility(View.GONE);
                 resetButton.setVisibility(View.VISIBLE);
+            }
+        });
+
+        logWorkoutButton.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View v) {
+                loggedToday = !loggedToday;
+
+                if (loggedToday) {
+                    logWorkoutButton.setText("Logged Today");
+                } else {
+                    logWorkoutButton.setText("Log Workout");
+                }
             }
         });
 
