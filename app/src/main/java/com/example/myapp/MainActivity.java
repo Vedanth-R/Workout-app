@@ -82,6 +82,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        FloatingActionButton fabSettings = findViewById(R.id.fabSettings);
+        fabSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
+            }
+        });
+
         // Bottom navigation setup - keep existing functionality
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.navigation_home);
