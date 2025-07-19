@@ -440,6 +440,11 @@
         <item>Wild Thing</item>
 
     </string-array>
+
+    <string-array name="chart_type_options">
+        <item>Calories</item>
+        <item>Workout Streak</item>
+    </string-array>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
