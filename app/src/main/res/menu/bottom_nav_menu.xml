@@ -6,7 +6,7 @@
         android:title="Workouts" />
     <item
         android:id="@+id/navigation_nutrition"
-        android:icon="@drawable/stretchingicon"
+        android:icon="@drawable/ic_meal"
         android:title="Nutrition" />
     <item
         android:id="@+id/navigation_home"
