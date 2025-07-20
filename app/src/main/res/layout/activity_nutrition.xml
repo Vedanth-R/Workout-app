@@ -4,11 +4,11 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
     >
 
 
     <HorizontalScrollView
+        android:padding="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fillViewport="true"
@@ -23,6 +23,7 @@
 
     <!-- Meal Inputs -->
     <ScrollView
+        android:padding="16dp"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -133,6 +134,7 @@
 
     <!-- Shopping List input -->
     <LinearLayout
+        android:padding="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -156,6 +158,7 @@
 
     <!-- Shopping List RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
+        android:padding="16dp"
         android:id="@+id/shoppingListRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="120dp"
@@ -167,6 +170,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:menu="@menu/bottom_nav_menu"
+        android:background="@color/lightblue"
         android:layout_marginTop="8dp" />
 
 </LinearLayout>
