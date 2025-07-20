@@ -176,7 +176,7 @@ public class StopwatchActivity extends AppCompatActivity {
             public void onClick(View v) {
                 startTime = 0L;
                 timeSwapBuff = 0L;
-                stopwatchTimer.setText("00:00:00");
+                stopwatchTimer.setText("0:00:000");
                 resetButton.setVisibility(View.GONE);
                 startButton.setVisibility(View.VISIBLE);
                 stopButton.setVisibility(View.GONE);
