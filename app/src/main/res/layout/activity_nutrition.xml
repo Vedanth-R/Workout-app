@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    >
+
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/daySelectorLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+    </HorizontalScrollView>
+
+    <!-- Meal Inputs -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingTop="16dp">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Breakfast -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Breakfast"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"/>
+
+            <EditText
+                android:id="@+id/breakfastEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Describe your breakfast (1 sentence)"
+                android:maxLines="2"
+                android:maxLength="150"
+                android:inputType="textCapSentences"/>
+
+            <Button
+                android:id="@+id/logBreakfastBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Log Breakfast"
+                android:layout_marginTop="4dp" />
+
+            <!-- Lunch -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Lunch"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"/>
+
+            <EditText
+                android:id="@+id/lunchEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Describe your lunch (1 sentence)"
+                android:maxLines="2"
+                android:maxLength="150"
+                android:inputType="textCapSentences"/>
+
+            <Button
+                android:id="@+id/logLunchBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Log Lunch"
+                android:layout_marginTop="4dp" />
+
+            <!-- Dinner -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dinner"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"/>
+
+            <EditText
+                android:id="@+id/dinnerEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Describe your dinner (1 sentence)"
+                android:maxLines="2"
+                android:maxLength="150"
+                android:inputType="textCapSentences"/>
+
+            <Button
+                android:id="@+id/logDinnerBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Log Dinner"
+                android:layout_marginTop="4dp" />
+
+            <!-- Warning Text -->
+            <TextView
+                android:id="@+id/warningText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Please write a 1 sentence description per meal for best logging accuracy."
+                android:textColor="#FF4444"
+                android:textSize="12sp"
+                android:layout_marginTop="12dp"
+                android:visibility="visible"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Shopping List Header -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Shopping List"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:layout_marginTop="8dp" />
+
+    <!-- Shopping List input -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="4dp">
+
+        <EditText
+            android:id="@+id/shoppingItemEditText"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="Add item"
+            android:maxLength="50"
+            android:inputType="text"/>
+
+        <Button
+            android:id="@+id/addShoppingItemBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add" />
+    </LinearLayout>
+
+    <!-- Shopping List RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/shoppingListRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_marginTop="4dp" />
+
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:menu="@menu/bottom_nav_menu"
+        android:layout_marginTop="8dp" />
+
+</LinearLayout>

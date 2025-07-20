@@ -174,12 +174,12 @@ public class Stretching extends AppCompatActivity {
 
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.navigation_stretches);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_nutrition);
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
-                if (item.getItemId() == R.id.navigation_stretches) {
+                if (item.getItemId() == R.id.navigation_nutrition) {
                     return true;
                 }
                 if (item.getItemId() == R.id.navigation_home) {

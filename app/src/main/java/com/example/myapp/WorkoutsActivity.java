@@ -186,7 +186,7 @@ public class WorkoutsActivity extends AppCompatActivity {
                     startActivity(settingsIntent);
                     return true;
                 }
-                if (item.getItemId() == R.id.navigation_stretches) {
+                if (item.getItemId() == R.id.navigation_nutrition) {
                     Intent settingsIntent = new Intent(WorkoutsActivity.this, Stretching.class);
                     startActivity(settingsIntent);
                     return true;

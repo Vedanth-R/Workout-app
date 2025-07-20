@@ -5,9 +5,9 @@
         android:icon="@drawable/ic_workouts"
         android:title="Workouts" />
     <item
-        android:id="@+id/navigation_stretches"
+        android:id="@+id/navigation_nutrition"
         android:icon="@drawable/stretchingicon"
-        android:title="Yoga" />
+        android:title="Nutrition" />
     <item
         android:id="@+id/navigation_home"
         android:icon="@drawable/ic_home"

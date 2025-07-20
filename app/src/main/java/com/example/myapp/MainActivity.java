@@ -109,8 +109,8 @@ public class MainActivity extends AppCompatActivity {
                 } else if (id == R.id.navigation_stopwatch) {
                     startActivity(new Intent(MainActivity.this, StopwatchActivity.class));
                     return true;
-                } else if (id == R.id.navigation_stretches) {
-                    startActivity(new Intent(MainActivity.this, Stretching.class));
+                } else if (id == R.id.navigation_nutrition) {
+                    startActivity(new Intent(MainActivity.this, NutritionActivity.class));
                     return true;
                 }
                 return false;

@@ -17,6 +17,9 @@
         android:theme="@style/Theme.MyApp"
         tools:targetApi="31">
         <activity
+            android:name=".NutritionActivity"
+            android:exported="false" />
+        <activity
             android:name=".chatbot"
             android:exported="false" />
         <activity
