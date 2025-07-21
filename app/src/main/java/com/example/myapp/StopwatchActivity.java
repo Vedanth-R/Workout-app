@@ -46,9 +46,13 @@ public class StopwatchActivity extends AppCompatActivity {
             updateTime = timeSwapBuff + timeInMilliseconds;
             int secs = (int) (updateTime / 1000);
             int mins = secs / 60;
+            int hours = mins / 60;
             secs = secs % 60;
-            int milliseconds = (int) (updateTime % 1000);
-            stopwatchTimer.setText("" + mins + ":" + String.format("%02d", secs) + ":" + String.format("%03d", milliseconds));
+            mins = mins % 60;
+
+            String time = String.format("%02d:%02d:%02d", hours, mins, secs);
+            stopwatchTimer.setText(time);
+
             handler.postDelayed(this, 0);
         }
     };
@@ -176,7 +180,7 @@ public class StopwatchActivity extends AppCompatActivity {
             public void onClick(View v) {
                 startTime = 0L;
                 timeSwapBuff = 0L;
-                stopwatchTimer.setText("0:00:000");
+                stopwatchTimer.setText("00:00:00");
                 resetButton.setVisibility(View.GONE);
                 startButton.setVisibility(View.VISIBLE);
                 stopButton.setVisibility(View.GONE);
