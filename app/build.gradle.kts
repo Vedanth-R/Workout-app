@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.myapp"
-    compileSdk = 34
+    compileSdk = 36
     buildFeatures {
         buildConfig=true
     }
@@ -15,7 +15,7 @@ android {
     defaultConfig {
         applicationId = "com.example.myapp"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
