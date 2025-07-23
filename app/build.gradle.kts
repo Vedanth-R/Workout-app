@@ -1,15 +1,18 @@
-
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
     id ("com.google.gms.google-services")
+    kotlin("android")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
-    namespace = "com.example.myapp"
-    compileSdk = 36
-    buildFeatures {
-        buildConfig=true
+        namespace = "com.example.myapp"
+        compileSdk = 36
+        buildFeatures {
+            buildConfig=true
+
     }
 
     defaultConfig {
@@ -22,6 +25,23 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
     }
+
+    // Jetpack Compose
+
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.13"
+    }
+
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.fromTarget("1.8")
+        }
+    }
+
 
     buildTypes {
 
@@ -43,7 +63,7 @@ android {
 
 
 dependencies {
-    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
+    implementation(platform(libs.firebase.bom))
 
 
     implementation(libs.appcompat)
@@ -54,21 +74,39 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
-    implementation("com.google.ai.client.generativeai:generativeai:0.7.0")
-    implementation("com.google.guava:guava:31.0.1-android")
-    implementation("org.reactivestreams:reactive-streams:1.0.4")
-    implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
-    implementation ("androidx.lifecycle:lifecycle-livedata:2.6.1")
-    implementation ("com.google.android.gms:play-services-maps:18.0.2")
-    implementation ("com.google.android.libraries.places:places:2.6.0")
-    implementation ("com.android.volley:volley:1.2.1")
-    implementation ("com.google.firebase:firebase-auth")
-    implementation ("co.yml:ycharts:2.1.0")
+    implementation(libs.mpandroidchart)
+    implementation(libs.generativeai)
+    implementation(libs.guava)
+    implementation(libs.reactive.streams)
+    implementation(libs.lifecycle.viewmodel)
+    implementation (libs.lifecycle.livedata)
+    implementation (libs.play.services.maps.v1802)
+    implementation (libs.places)
+    implementation (libs.volley)
+    implementation (libs.firebase.auth)
+    implementation (libs.ycharts)
 
+    // Jetpack Compose
 
+    // Jetpack Compose BOM (manages versions)
+    implementation(platform(libs.compose.bom))
 
+    // Core UI components
+    implementation(libs.ui)
+    implementation(libs.ui.tooling.preview)
 
+    // Material3
+    implementation(libs.material3)
+
+    // Activity integration
+    implementation(libs.activity.compose)
+
+    // Optional: for previews
+    debugImplementation(libs.ui.tooling)
+    debugImplementation(libs.ui.test.manifest)
+
+    // Navigation
+    implementation(libs.navigation.compose)
 
 
 }

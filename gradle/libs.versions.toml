@@ -1,24 +1,59 @@
 [versions]
-agp = "8.5.0"
+agp = "8.11.1"
+composeBom = "2025.07.00"
+firebaseBom = "34.0.0"
+generativeai = "0.9.0"
+googleServices = "4.4.3"
+guava = "33.4.8-android"
 junit = "4.13.2"
-junitVersion = "1.2.0"
-espressoCore = "3.6.0"
-appcompat = "1.7.0"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+appcompat = "1.7.1"
+lifecycleViewmodel = "2.9.2"
 material = "1.12.0"
-activity = "1.9.0"
-constraintlayout = "2.1.4"
-playServicesMaps = "19.0.0"
+activity = "1.10.1"
+constraintlayout = "2.2.1"
+mpandroidchart = "v3.1.0"
+places = "4.4.1"
+playServicesMaps = "19.2.0"
+playServicesMapsVersion = "19.2.0"
+reactiveStreams = "1.0.4"
+volley = "1.2.1"
+ycharts = "2.1.0"
+kotlin = "2.2.0"
 
 [libraries]
+activity-compose = { module = "androidx.activity:activity-compose" }
+compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+firebase-auth = { module = "com.google.firebase:firebase-auth" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+generativeai = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "generativeai" }
+google-services = { module = "com.google.gms:google-services", version.ref = "googleServices" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+lifecycle-livedata = { module = "androidx.lifecycle:lifecycle-livedata", version.ref = "lifecycleViewmodel" }
+lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "lifecycleViewmodel" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+material3 = { module = "androidx.compose.material3:material3" }
+mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
+navigation-compose = { module = "androidx.navigation:navigation-compose" }
+places = { module = "com.google.android.libraries.places:places", version.ref = "places" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
+play-services-maps-v1802 = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMapsVersion" }
+reactive-streams = { module = "org.reactivestreams:reactive-streams", version.ref = "reactiveStreams" }
+ui = { module = "androidx.compose.ui:ui" }
+ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+volley = { module = "com.android.volley:volley", version.ref = "volley" }
+ycharts = { module = "co.yml:ycharts", version.ref = "ycharts" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-
+org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
