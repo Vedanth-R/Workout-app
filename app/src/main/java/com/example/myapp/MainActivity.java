@@ -68,8 +68,10 @@ public class MainActivity extends AppCompatActivity {
         fabChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, chatbot.class);
+                Intent intent = new Intent(MainActivity.this, MainActivityKotlin.class);
                 startActivity(intent);
+//                Intent intent = new Intent(MainActivity.this, chatbot.class);
+//                startActivity(intent);
             }
         });
 
@@ -79,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(settingsIntent);
+
             }
         });
 
@@ -167,3 +170,16 @@ public class MainActivity extends AppCompatActivity {
         progressChart.invalidate(); // Refresh chart
     }
 }
+
+/*public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Launch Kotlin Compose MainActivity
+        Intent intent = new Intent(MainActivity.this, MainActivityKotlin.class);
+        startActivity(intent);
+        //finish(); // Close this activity to prevent back navigation to old UI
+    }
+}*/

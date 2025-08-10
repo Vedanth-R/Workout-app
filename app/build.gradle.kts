@@ -103,6 +103,8 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
 
 
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
 
     // Jetpack Compose BOM (manages versions)
     val composeBom = platform(libs.compose.bom)

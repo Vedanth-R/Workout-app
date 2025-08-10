@@ -1,5 +1,5 @@
 [versions]
-agp = "8.11.1"
+agp = "8.12.0"
 composeBom = "2025.07.00"
 firebaseBom = "34.0.0"
 generativeai = "0.9.0"
@@ -14,6 +14,7 @@ material = "1.12.0"
 activity = "1.10.1"
 constraintlayout = "2.2.1"
 mpandroidchart = "v3.1.0"
+navigationCompose = "2.9.3"
 places = "4.4.1"
 playServicesMaps = "19.2.0"
 playServicesMapsVersion = "19.2.0"
@@ -34,6 +35,7 @@ androidx-compose-material3-material3 = { module = "androidx.compose.material3:ma
 androidx-foundation = { module = "androidx.compose.foundation:foundation" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 androidx-material3 = { module = "androidx.compose.material3:material3" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-runtime = { module = "androidx.compose.runtime:runtime" }
 androidx-ui = { module = "androidx.compose.ui:ui" }
 androidx-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
