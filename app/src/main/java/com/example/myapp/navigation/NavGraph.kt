@@ -21,7 +21,14 @@ fun NavGraph(
     ) {
         composable("workout") { WorkoutScreen() }
         composable("food") { NutritionScreen() }
-        composable("home") { HomeScreen() }
+        composable("home") {
+            HomeScreen(
+                onWorkoutClick = { navController.navigate("workout") },
+                onNutritionClick = { navController.navigate("food") },
+                onTimerClick = { navController.navigate("timer") },
+                onAchievementsClick = { navController.navigate("stars") }
+            )
+        }
         composable("timer") { TimerScreen() }
         composable("stars") { StarsScreen() }
     }

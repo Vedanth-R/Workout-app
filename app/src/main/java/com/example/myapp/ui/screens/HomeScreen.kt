@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -24,11 +23,16 @@ import com.github.mikephil.charting.charts.LineChart
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun HomeScreen() {
+@Preview
+fun HomeScreen(
+    onWorkoutClick: () -> Unit,
+    onNutritionClick: () -> Unit,
+    onTimerClick: () -> Unit,
+    onAchievementsClick: () -> Unit
+) {
 
     Column(
         modifier = Modifier
@@ -75,13 +79,17 @@ fun HomeScreen() {
                     "Full Body Workout",
                     "Add Workout",
                     modifier = Modifier.weight(.5f)
-                ) {}
+                ) {
+                    onWorkoutClick()
+                }
                 BentoCard(
                     "Nutrition",
                     "1800 / 2200 kcal",
                     "Log Meal",
                     modifier = Modifier.weight(.5f)
-                ) {}
+                ) {
+                    onNutritionClick()
+                }
             }
             Spacer(modifier = Modifier.height(12.dp))
             Row(
@@ -92,13 +100,17 @@ fun HomeScreen() {
                     "Timer",
                     "HIIT 15:00",
                     "Start",
-                    modifier = Modifier.weight(.5f)) {}
+                    modifier = Modifier.weight(.5f)) {
+                    onTimerClick()
+                }
                 BentoCard(
                     "Achievements",
                     "5 Milestones",
                     "View",
                     modifier = Modifier.weight(.5f)
-                ) {}
+                ) {
+                    onAchievementsClick()
+                }
             }
         }
         Surface(
