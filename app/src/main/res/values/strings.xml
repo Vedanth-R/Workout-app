@@ -1,5 +1,103 @@
 <resources>
-    <string name="app_name">MyApp</string>
+
+    <string name="app_name">Peak Form</string>
+
+    <!-- Login/Register -->
+    <string name="welcome_back">Welcome back!</string>
+    <string name="sign_in_continue">Sign in to continue your fitness journey</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign In</string>
+    <string name="dont_have_account">Don\'t have an account?</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="create_account">Create Account</string>
+    <string name="join_peak_form">Join Peak Form and start your fitness journey</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="full_name">Full Name</string>
+    <string name="already_have_account">Already have an account?</string>
+
+    <!-- Navigation -->
+    <string name="nav_workouts">Workouts</string>
+    <string name="nav_nutrition">Nutrition</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_timer">Timer</string>
+    <string name="nav_achievements">Achievements</string>
+
+    <!-- Home Screen -->
+    <string name="hello_user">Hello, %s!</string>
+    <string name="your_progress">Your Progress</string>
+    <string name="workouts_this_week">Workouts This Week</string>
+    <string name="calories_burned">Calories Burned</string>
+    <string name="current_streak">Current Streak</string>
+    <string name="days">days</string>
+    <string name="personal_records">Personal Records</string>
+    <string name="view_all">View All</string>
+    <string name="quick_start_workout">Quick Start Workout</string>
+    <string name="log_meal">Log Meal</string>
+
+    <!-- Workouts -->
+    <string name="my_workouts">My Workouts</string>
+    <string name="create_workout">Create Workout</string>
+    <string name="workout_name">Workout Name</string>
+    <string name="add_exercise">Add Exercise</string>
+    <string name="exercises">Exercises</string>
+    <string name="stretches">Stretches</string>
+
+    <!-- Nutrition -->
+    <string name="daily_nutrition">Daily Nutrition</string>
+    <string name="calories_today">Calories Today</string>
+    <string name="goal">Goal</string>
+    <string name="breakfast">Breakfast</string>
+    <string name="lunch">Lunch</string>
+    <string name="dinner">Dinner</string>
+    <string name="snacks">Snacks</string>
+    <string name="shopping_list">Shopping List</string>
+    <string name="add_item">Add Item</string>
+
+    <!-- Timer -->
+    <string name="timer">Timer</string>
+    <string name="stopwatch">Stopwatch</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="reset">Reset</string>
+    <string name="log_workout">Log Workout</string>
+    <string name="workout_type">Workout Type</string>
+
+    <!-- Achievements -->
+    <string name="your_achievements">Your Achievements</string>
+    <string name="locked">Locked</string>
+    <string name="unlocked">Unlocked</string>
+    <string name="progress">Progress</string>
+
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="profile">Profile</string>
+    <string name="preferences">Preferences</string>
+    <string name="app_theme">App Theme</string>
+    <string name="notifications">Notifications</string>
+    <string name="fitness_goals">Fitness Goals</string>
+    <string name="height">Height</string>
+    <string name="weight">Weight</string>
+    <string name="gender">Gender</string>
+    <string name="age">Age</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="other">Other</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- General -->
+    <string name="loading">Loading…</string>
+    <string name="error">Error</string>
+    <string name="success">Success</string>
+    <string name="confirm">Confirm</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="add">Add</string>
+
+
+
+<!--    <string name="app_name">MyApp</string>-->
     <string-array name="radius_options">
         <item>5 mi</item>
         <item>10 mi</item>

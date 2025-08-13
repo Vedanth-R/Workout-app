@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_workouts"
+        android:icon="@drawable/ic_workouts"
+        android:title="@string/nav_workouts" />
+
+    <item
+        android:id="@+id/navigation_nutrition"
+        android:icon="@drawable/ic_nutrition"
+        android:title="@string/nav_nutrition" />
+
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@drawable/ic_home"
+        android:title="@string/nav_home" />
+
+    <item
+        android:id="@+id/navigation_timer"
+        android:icon="@drawable/ic_timer"
+        android:title="@string/nav_timer" />
+
+    <item
+        android:id="@+id/navigation_achievements"
+        android:icon="@drawable/ic_achievements"
+        android:title="@string/nav_achievements" />
+</menu>
