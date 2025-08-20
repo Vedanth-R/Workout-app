@@ -51,6 +51,9 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.play.services.maps)
+    implementation(libs.navigation.fragment)
+    implementation(libs.navigation.ui)
+    implementation(libs.recyclerview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -65,6 +68,7 @@ dependencies {
     implementation ("com.android.volley:volley:1.2.1")
     implementation ("com.google.firebase:firebase-auth")
     implementation ("co.yml:ycharts:2.1.0")
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
 
 
 
