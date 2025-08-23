@@ -36,7 +36,6 @@ public class WorkoutFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_workout, container, false);
 
         rvWorkouts = view.findViewById(R.id.rvWorkouts);
-        llEmptyState = view.findViewById(R.id.llEmptyState);
         btnCreateWorkout = view.findViewById(R.id.btnCreateWorkout);
 
         adapter = new WorkoutAdapter(workoutList, getContext(), null);

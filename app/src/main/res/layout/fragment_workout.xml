@@ -75,43 +75,5 @@
         tools:itemCount="5"
         tools:listitem="@layout/item_workout" />
 
-    <!-- Empty State -->
-    <LinearLayout
-        android:id="@+id/llEmptyState"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="@+id/rvWorkouts"
-        app:layout_constraintBottom_toBottomOf="@+id/rvWorkouts"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <TextView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:text="💪"
-            android:textSize="60sp"
-            android:gravity="center"
-            android:layout_marginBottom="16dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="No workouts yet"
-            android:textAppearance="?attr/textAppearanceTitleLarge"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:layout_marginBottom="8dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Create your first workout routine to get started"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textAlignment="center" />
-
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

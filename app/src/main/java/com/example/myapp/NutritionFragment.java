@@ -14,12 +14,17 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.myapp.model.Food;
 import com.example.myapp.model.ShoppingListAdapter;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class NutritionFragment extends Fragment {
@@ -73,47 +78,89 @@ public class NutritionFragment extends Fragment {
 
         // Load data
         loadCalories();
-        loadMeals();
         loadShoppingList();
+        updateMealCalories();
 
-        // Button listeners
-        btnAddBreakfast.setOnClickListener(v -> addMeal("breakfast"));
-        btnAddLunch.setOnClickListener(v -> addMeal("lunch"));
-        btnAddDinner.setOnClickListener(v -> addMeal("dinner"));
-        btnAddSnacks.setOnClickListener(v -> addMeal("snacks"));
+        // "+" buttons for adding/searching foods
+        btnAddBreakfast.setOnClickListener(v -> openFoodBottomSheet("breakfast"));
+        btnAddLunch.setOnClickListener(v -> openFoodBottomSheet("lunch"));
+        btnAddDinner.setOnClickListener(v -> openFoodBottomSheet("dinner"));
+        btnAddSnacks.setOnClickListener(v -> openFoodBottomSheet("snacks"));
 
+        // Meal card clicks to view logged foods
+        view.findViewById(R.id.cardBreakfast).setOnClickListener(v -> openMealFoods("breakfast", "🌅"));
+        view.findViewById(R.id.cardLunch).setOnClickListener(v -> openMealFoods("lunch", "☀️"));
+        view.findViewById(R.id.cardDinner).setOnClickListener(v -> openMealFoods("dinner", "🌙"));
+        view.findViewById(R.id.cardSnacks).setOnClickListener(v -> openMealFoods("snacks", "🍿"));
+
+        // Shopping list
         btnAddItem.setOnClickListener(v -> addShoppingItem());
 
         return view;
     }
 
+    // Opens FoodBottomSheet in SEARCH mode for "+" buttons
+    private void openFoodBottomSheet(String mealType) {
+        FoodBottomSheet bottomSheet = FoodBottomSheet.newInstance(mealType, FoodBottomSheet.Mode.SEARCH);
+        bottomSheet.setListener(() -> {
+            updateMealCalories();
+            loadCalories();
+        });
+        bottomSheet.show(getParentFragmentManager(), "FoodBottomSheet_" + mealType);
+    }
+
+    // Opens FoodBottomSheet in LOGGED mode for card clicks
+    private void openMealFoods(String mealType, String emoji) {
+        String json = sharedPreferences.getString(mealType + "_foods", null);
+        List<Food> loggedFoods = new ArrayList<>();
+        if (json != null) {
+            Gson gson = new Gson();
+            Type type = new TypeToken<List<Food>>() {}.getType();
+            loggedFoods = gson.fromJson(json, type);
+        }
+
+        FoodBottomSheet bottomSheet = FoodBottomSheet.newInstance(mealType, FoodBottomSheet.Mode.LOGGED);
+        bottomSheet.setListener(() -> {
+            updateMealCalories();
+            loadCalories();
+        });
+        bottomSheet.show(getParentFragmentManager(), "FoodBottomSheet_" + mealType);
+    }
+
     private void loadCalories() {
-        int consumed = sharedPreferences.getInt("calories_consumed", 0);
+        int total = getTotalCalories();
         int goal = sharedPreferences.getInt("calories_goal", 2000);
 
-        tvCaloriesConsumed.setText(String.valueOf(consumed));
+        tvCaloriesConsumed.setText(String.valueOf(total));
         tvCaloriesGoal.setText(String.valueOf(goal));
 
-        int progress = (goal == 0) ? 0 : (int) ((consumed / (float) goal) * 100);
+        int progress = (goal == 0) ? 0 : (int) ((total / (float) goal) * 100);
         progressCalories.setProgress(progress);
     }
 
-    private void loadMeals() {
-        tvBreakfastCalories.setText(sharedPreferences.getString("breakfast_calories", "0 calories"));
-        tvLunchCalories.setText(sharedPreferences.getString("lunch_calories", "0 calories"));
-        tvDinnerCalories.setText(sharedPreferences.getString("dinner_calories", "0 calories"));
-        tvSnacksCalories.setText(sharedPreferences.getString("snacks_calories", "0 calories"));
+    private int getTotalCalories() {
+        return getMealCalories("breakfast") + getMealCalories("lunch") +
+                getMealCalories("dinner") + getMealCalories("snacks");
     }
 
-    private void addMeal(String mealType) {
-        // Placeholder: just show a toast. Replace with Nutritionix API integration.
-        Toast.makeText(getContext(), mealType.substring(0, 1).toUpperCase() + mealType.substring(1) + " logged!", Toast.LENGTH_SHORT).show();
+    private void updateMealCalories() {
+        tvBreakfastCalories.setText(getMealCalories("breakfast") + " cal");
+        tvLunchCalories.setText(getMealCalories("lunch") + " cal");
+        tvDinnerCalories.setText(getMealCalories("dinner") + " cal");
+        tvSnacksCalories.setText(getMealCalories("snacks") + " cal");
+    }
 
-        // Example: increment calories (for demo)
-        int currentCalories = sharedPreferences.getInt("calories_consumed", 0);
-        int newCalories = currentCalories + 100; // assume 100 calories per add
-        sharedPreferences.edit().putInt("calories_consumed", newCalories).apply();
-        loadCalories();
+    private int getMealCalories(String mealType) {
+        String json = sharedPreferences.getString(mealType + "_foods", null);
+        if (json == null) return 0;
+
+        Gson gson = new Gson();
+        Type type = new TypeToken<List<Food>>() {}.getType();
+        List<Food> foods = gson.fromJson(json, type);
+
+        int total = 0;
+        for (Food f : foods) total += f.getCalories();
+        return total;
     }
 
     private void loadShoppingList() {
@@ -124,17 +171,14 @@ public class NutritionFragment extends Fragment {
     }
 
     private void addShoppingItem() {
-        // You can implement a dialog or input here. For now, just add placeholder.
         if (shoppingListItems.size() >= MAX_SHOPPING_ITEMS) {
             Toast.makeText(getContext(), "Shopping list limit reached (50 items).", Toast.LENGTH_SHORT).show();
             return;
         }
-
         String newItem = "New Item " + (shoppingListItems.size() + 1); // placeholder
         shoppingListItems.add(newItem);
         shoppingListAdapter.notifyDataSetChanged();
 
-        // Save
         Set<String> itemsSet = new HashSet<>(shoppingListItems);
         sharedPreferences.edit().putStringSet("shopping_list", itemsSet).apply();
     }
