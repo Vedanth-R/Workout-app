@@ -23,19 +23,37 @@
     </LinearLayout>
 
     <!-- Search Bar -->
-    <com.google.android.material.textfield.TextInputLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Search for food">
+        android:layout_height="wrap_content">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etFoodSearch"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:imeOptions="actionSearch"
-            android:inputType="text" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:hint="Search for food">
 
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etFoodSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:paddingEnd="36dp"/> <!-- leave space for spinner -->
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ProgressBar
+            android:id="@+id/progressBarSearch"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_gravity="end"
+            android:indeterminate="true"
+            android:visibility="gone"
+            android:progressTint="@color/purple"/>
+    </FrameLayout>
     <!-- RecyclerView for food items -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvFoodItems"

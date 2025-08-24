@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -54,6 +55,7 @@ public class FoodBottomSheet extends BottomSheetDialogFragment {
 
     private RecyclerView rvFood;
     private EditText etSearch;
+    private ProgressBar progressBarSearch;
 
     private FoodAdapter foodAdapter;
     private List<Food> foodList = new ArrayList<>();
@@ -101,6 +103,8 @@ public class FoodBottomSheet extends BottomSheetDialogFragment {
         View view = inflater.inflate(R.layout.bottom_sheet_food, container, false);
 
         sharedPreferences = requireActivity().getSharedPreferences("nutrition_prefs", getActivity().MODE_PRIVATE);
+
+        progressBarSearch = view.findViewById(R.id.progressBarSearch);
 
         if (getArguments() != null) {
             mealType = getArguments().getString(ARG_MEAL_TYPE);
@@ -150,6 +154,16 @@ public class FoodBottomSheet extends BottomSheetDialogFragment {
         return view;
     }
 
+    private void startLoading() {
+        progressBarSearch.setVisibility(View.VISIBLE);
+    }
+
+    private void stopLoading() {
+        progressBarSearch.setVisibility(View.GONE);
+    }
+
+
+
     private String getEmojiForMeal(String mealType) {
         switch (mealType.toLowerCase()) {
             case "breakfast": return "🌅";
@@ -187,21 +201,22 @@ public class FoodBottomSheet extends BottomSheetDialogFragment {
     // === Search Food ===
     private void searchFood(String query) {
         if (query.isEmpty()) {
-            foodAdapter.updateList(new ArrayList<>());
+            foodAdapter.updateList(new ArrayList<>()); // clear results
             return;
         }
+
+        startLoading(); // show spinner
+
+        List<Food> finalList = new ArrayList<>();
 
         // Step 1: USDA Foundation
         usdaApi.searchFoods(query, USDA_API_KEY, "Foundation").enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                List<Food> finalList = new ArrayList<>();
-
                 if (response.isSuccessful() && response.body() != null) {
                     List<Food> foundationFoods = filterUsdaByKeyword(parseUsdaResults(response.body()), query);
                     finalList.addAll(foundationFoods);
                 }
-
                 // Step 2: USDA Branded
                 usdaApi.searchFoods(query, USDA_API_KEY, "Branded").enqueue(new Callback<JsonObject>() {
                     @Override
@@ -210,8 +225,7 @@ public class FoodBottomSheet extends BottomSheetDialogFragment {
                             List<Food> brandedFoods = filterUsdaByKeyword(parseUsdaResults(response.body()), query);
                             finalList.addAll(brandedFoods);
                         }
-
-                        // Step 3: OFF results
+                        // Step 3: OFF
                         offApi.searchFoods(query, 1, 1).enqueue(new Callback<JsonObject>() {
                             @Override
                             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -219,6 +233,8 @@ public class FoodBottomSheet extends BottomSheetDialogFragment {
                                     List<Food> offFoods = parseOffResults(response.body());
                                     finalList.addAll(offFoods);
                                 }
+
+                                stopLoading(); // hide spinner
 
                                 if (!finalList.isEmpty()) {
                                     foodAdapter.updateList(finalList);
@@ -229,6 +245,7 @@ public class FoodBottomSheet extends BottomSheetDialogFragment {
 
                             @Override
                             public void onFailure(Call<JsonObject> call, Throwable t) {
+                                stopLoading(); // hide spinner
                                 if (!finalList.isEmpty()) {
                                     foodAdapter.updateList(finalList);
                                 } else {
@@ -240,17 +257,32 @@ public class FoodBottomSheet extends BottomSheetDialogFragment {
 
                     @Override
                     public void onFailure(Call<JsonObject> call, Throwable t) {
-                        // If Branded fails, still go to OFF
+                        // Even if Branded fails, go to OFF
                         offApi.searchFoods(query, 1, 1).enqueue(new Callback<JsonObject>() {
                             @Override
                             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                                List<Food> offFoods = parseOffResults(response.body());
-                                foodAdapter.updateList(offFoods);
+                                if (response.isSuccessful() && response.body() != null) {
+                                    List<Food> offFoods = parseOffResults(response.body());
+                                    finalList.addAll(offFoods);
+                                }
+
+                                stopLoading(); // hide spinner
+
+                                if (!finalList.isEmpty()) {
+                                    foodAdapter.updateList(finalList);
+                                } else {
+                                    Toast.makeText(getContext(), "No results found", Toast.LENGTH_SHORT).show();
+                                }
                             }
 
                             @Override
                             public void onFailure(Call<JsonObject> call, Throwable t) {
-                                Toast.makeText(getContext(), "OFF API error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                                stopLoading(); // hide spinner
+                                if (!finalList.isEmpty()) {
+                                    foodAdapter.updateList(finalList);
+                                } else {
+                                    Toast.makeText(getContext(), "OFF API error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
                             }
                         });
                     }
@@ -259,8 +291,8 @@ public class FoodBottomSheet extends BottomSheetDialogFragment {
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
-                // If Foundation fails, go directly to Branded -> OFF
-                searchUsdaBranded(query);
+                // If Foundation fails, go directly to USDA Branded -> OFF
+                searchUsdaBranded(query); // searchUsdaBranded already handles spinner properly
             }
         });
     }
@@ -358,30 +390,51 @@ public class FoodBottomSheet extends BottomSheetDialogFragment {
         JsonArray array = body.getAsJsonArray("foods");
         for (JsonElement e : array) {
             JsonObject obj = e.getAsJsonObject();
+
+            // Filter out non-English descriptions
             if (obj.has("description") && !obj.get("description").getAsString().matches(".*\\p{IsLatin}.*"))
                 continue;
 
             String name = obj.has("description") ? obj.get("description").getAsString() : "Unknown";
+
             double cal = 0, protein = 0, carbs = 0, fat = 0;
 
             if (obj.has("foodNutrients")) {
                 JsonArray nutrients = obj.getAsJsonArray("foodNutrients");
                 for (JsonElement n : nutrients) {
                     JsonObject nutrient = n.getAsJsonObject();
-                    String nutrientName = nutrient.get("nutrientName").getAsString();
+                    String nutrientName = nutrient.has("nutrientName") ? nutrient.get("nutrientName").getAsString().toLowerCase() : "";
                     double value = nutrient.has("value") ? nutrient.get("value").getAsDouble() : 0;
+                    String unit = nutrient.has("unitName") ? nutrient.get("unitName").getAsString().toLowerCase() : "";
 
-                    switch (nutrientName.toLowerCase()) {
-                        case "energy": cal = value; break;
-                        case "protein": protein = value; break;
-                        case "carbohydrate, by difference": carbs = value; break;
-                        case "total lipid (fat)": fat = value; break;
+                    switch (nutrientName) {
+                        case "energy":
+                        case "energy (kcal)":
+                        case "energy kcal":
+                            cal = value;
+                            break;
+                        case "protein":
+                            protein = value;
+                            break;
+                        case "carbohydrate, by difference":
+                            carbs = value;
+                            break;
+                        case "total lipid (fat)":
+                            fat = value;
+                            break;
+                    }
+
+                    // Fallback: if unit is kcal and calories not yet set
+                    if (unit.equals("kcal") && cal == 0) {
+                        cal = value;
                     }
                 }
             }
+
             String details = String.format("%.0f kcal | %.0fg P | %.0fg C | %.0fg F", cal, protein, carbs, fat);
             foods.add(new Food(name, (int) cal, details));
         }
+
         return foods;
     }
 

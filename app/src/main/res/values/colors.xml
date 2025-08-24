@@ -15,7 +15,9 @@
         <!-- Vibrant accent color -->
         <color name="vibrantAccent">#ff80a8
 
-        </color> <!-- Vibrant pink accent color for buttons, highlights -->
+        </color>
+
+    <color name="teal_200">#03DAC5</color><!-- Vibrant pink accent color for buttons, highlights -->
 
 
 </resources>
