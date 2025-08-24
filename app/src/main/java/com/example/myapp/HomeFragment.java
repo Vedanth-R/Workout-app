@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -33,6 +34,8 @@ public class HomeFragment extends Fragment {
     private RecyclerView rvPersonalRecords;
     private MaterialButton btnQuickWorkout, btnLogMeal;
     private FloatingActionButton fabSettings, fabChat;
+    
+    private HomeViewModel homeViewModel;
 
     public HomeFragment() {
         // Required empty constructor
@@ -50,6 +53,9 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Initialize ViewModel
+        homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+
         // Bind views
         tvGreeting = view.findViewById(R.id.tvGreeting);
         tvDate = view.findViewById(R.id.tvDate);
@@ -66,13 +72,10 @@ public class HomeFragment extends Fragment {
         // Optional: if you moved FABs into the fragment (else keep in MainActivity)
         fabSettings = getActivity().findViewById(R.id.fabSettings);
 
-        // Dummy data
-        tvGreeting.setText("Good Morning, User");
-        tvDate.setText("Today, August 19");
-        tvWorkoutCount.setText("12");
-        tvCaloriesBurned.setText("1450");
-        tvStreakCount.setText("7");
+        // Observe ViewModel data
+        observeViewModelData();
 
+        // Setup chart
         setupChartWithDummyData();
 
         // FAB click listeners
@@ -81,7 +84,6 @@ public class HomeFragment extends Fragment {
                 startActivity(new Intent(getActivity(), SettingsActivity.class));
             });
         }
-
 
         // Quick Actions
         btnQuickWorkout.setOnClickListener(v -> {
@@ -106,6 +108,43 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onNothingSelected(android.widget.AdapterView<?> parent) {
+            }
+        });
+    }
+    
+    private void observeViewModelData() {
+        // Observe greeting changes
+        homeViewModel.getGreeting().observe(getViewLifecycleOwner(), greeting -> {
+            if (tvGreeting != null) {
+                tvGreeting.setText(greeting);
+            }
+        });
+        
+        // Observe date changes
+        homeViewModel.getDate().observe(getViewLifecycleOwner(), date -> {
+            if (tvDate != null) {
+                tvDate.setText(date);
+            }
+        });
+        
+        // Observe workout count changes
+        homeViewModel.getWorkoutCount().observe(getViewLifecycleOwner(), count -> {
+            if (tvWorkoutCount != null) {
+                tvWorkoutCount.setText(String.valueOf(count));
+            }
+        });
+        
+        // Observe calories burned changes
+        homeViewModel.getCaloriesBurned().observe(getViewLifecycleOwner(), calories -> {
+            if (tvCaloriesBurned != null) {
+                tvCaloriesBurned.setText(String.valueOf(calories));
+            }
+        });
+        
+        // Observe streak count changes
+        homeViewModel.getStreakCount().observe(getViewLifecycleOwner(), streak -> {
+            if (tvStreakCount != null) {
+                tvStreakCount.setText(String.valueOf(streak));
             }
         });
     }

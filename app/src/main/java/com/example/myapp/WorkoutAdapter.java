@@ -14,7 +14,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
     private List<Workout> workoutList;
     private Context context;
 
-    public WorkoutAdapter(List<Workout> workoutList, Context context, Object o) {
+    public WorkoutAdapter(List<Workout> workoutList, Context context) {
         this.workoutList = workoutList;
         this.context = context;
     }
@@ -29,9 +29,14 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
     @Override
     public void onBindViewHolder(@NonNull WorkoutViewHolder holder, int position) {
         Workout workout = workoutList.get(position);
-        holder.exerciseTextView.setText(workout.getExercise());
-        holder.repsTextView.setText(workout.getReps());
-        holder.weightTextView.setText(workout.getWeight());
+        holder.workoutNameTextView.setText(workout.getExercise());
+        
+        // Format the workout details
+        String details = workout.getReps() + " reps";
+        if (workout.getWeight() != null && !workout.getWeight().isEmpty()) {
+            details += " • " + workout.getWeight() + " kg";
+        }
+        holder.workoutDetailsTextView.setText(details);
 
         holder.itemView.setOnClickListener(v -> {
             // Handle item click if needed
@@ -44,13 +49,12 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
     }
 
     static class WorkoutViewHolder extends RecyclerView.ViewHolder {
-        TextView exerciseTextView, repsTextView, weightTextView;
+        TextView workoutNameTextView, workoutDetailsTextView;
 
         WorkoutViewHolder(View itemView) {
             super(itemView);
-            exerciseTextView = itemView.findViewById(R.id.exerciseTextView);
-            repsTextView = itemView.findViewById(R.id.repsEditText);
-            weightTextView = itemView.findViewById(R.id.weightEditText);
+            workoutNameTextView = itemView.findViewById(R.id.tvWorkoutName);
+            workoutDetailsTextView = itemView.findViewById(R.id.tvWorkoutDetails);
         }
     }
 }

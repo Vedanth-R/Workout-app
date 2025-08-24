@@ -76,7 +76,7 @@ public class StopwatchActivity extends AppCompatActivity {
 
         workoutList = new ArrayList<>();
 
-        workoutAdapter = new WorkoutAdapter(workoutList, this, null);
+        workoutAdapter = new WorkoutAdapter(workoutList, this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(workoutAdapter);
 
