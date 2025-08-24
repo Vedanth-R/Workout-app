@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,8 +29,13 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -71,9 +78,12 @@ public class FoodBottomSheet extends BottomSheetDialogFragment {
         this.listener = listener;
     }
 
-    private static final String API_KEY = "9d76aaff6887c66ce729a1de941351b1";
-    private static final String APP_ID = "39100170";
-    private NutritionixApi api;
+    // USDA API key
+    private static final String USDA_API_KEY = "F7bKl8ss5ZK2t3sgLb4GRsbOxDohs8JaRiErvo8Y";
+
+    // Retrofit APIs
+    private UsdaApi usdaApi;
+    private OffApi offApi;
 
     public static FoodBottomSheet newInstance(String mealType, Mode mode) {
         FoodBottomSheet fragment = new FoodBottomSheet();
@@ -106,10 +116,10 @@ public class FoodBottomSheet extends BottomSheetDialogFragment {
                 getContext(),
                 mode == Mode.LOGGED,
                 food -> {
-                    if (mode == Mode.SEARCH) logFood(food); // Only log in SEARCH mode
+                    if (mode == Mode.SEARCH) logFood(food);
                 },
                 food -> {
-                    if (mode == Mode.LOGGED) confirmDeleteFood(food); // Only delete in LOGGED mode
+                    if (mode == Mode.LOGGED) confirmDeleteFood(food);
                 },
                 currentMealEmoji
         );
@@ -117,26 +127,22 @@ public class FoodBottomSheet extends BottomSheetDialogFragment {
         rvFood.setLayoutManager(new LinearLayoutManager(getContext()));
         rvFood.setAdapter(foodAdapter);
 
-        if (mode == Mode.SEARCH) {
-            // === SEARCH MODE: leave fully intact ===
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("https://trackapi.nutritionix.com/")
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-            api = retrofit.create(NutritionixApi.class);
+        setupApis();
 
-            etSearch.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override
-                public void afterTextChanged(Editable s) {}
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s.length() > 0) searchFood(s.toString());
+        if (mode == Mode.SEARCH) {
+            etSearch.setOnKeyListener((v, keyCode, event) -> {
+                if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_UP) {
+                    String query = etSearch.getText().toString().trim();
+                    if (query.isEmpty()) {
+                        foodAdapter.updateList(new ArrayList<>()); // clear results
+                    } else {
+                        searchFood(query);
+                    }
+                    return true;
                 }
+                return false;
             });
         } else {
-            // === LOGGED MODE: show saved foods, hide search ===
             etSearch.setVisibility(View.GONE);
             loadLoggedFoods();
         }
@@ -154,30 +160,256 @@ public class FoodBottomSheet extends BottomSheetDialogFragment {
         }
     }
 
-    // SEARCH MODE methods remain unchanged
+    private void setupApis() {
+        Retrofit retrofitUsda = new Retrofit.Builder()
+                .baseUrl("https://api.nal.usda.gov/fdc/v1/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        usdaApi = retrofitUsda.create(UsdaApi.class);
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(chain -> {
+                    Request request = chain.request().newBuilder()
+                            .header("User-Agent", "PeakForm/1.0 (contact: vedanth.rao.v@gmail.com)")
+                            .build();
+                    return chain.proceed(request);
+                })
+                .build();
+
+        Retrofit retrofitOff = new Retrofit.Builder()
+                .baseUrl("https://world.openfoodfacts.org/")
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        offApi = retrofitOff.create(OffApi.class);
+    }
+
+    // === Search Food ===
     private void searchFood(String query) {
-        api.searchFoods(query, APP_ID, API_KEY).enqueue(new Callback<JsonObject>() {
+        if (query.isEmpty()) {
+            foodAdapter.updateList(new ArrayList<>());
+            return;
+        }
+
+        // Step 1: USDA Foundation
+        usdaApi.searchFoods(query, USDA_API_KEY, "Foundation").enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                List<Food> finalList = new ArrayList<>();
+
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Food> foundationFoods = filterUsdaByKeyword(parseUsdaResults(response.body()), query);
+                    finalList.addAll(foundationFoods);
+                }
+
+                // Step 2: USDA Branded
+                usdaApi.searchFoods(query, USDA_API_KEY, "Branded").enqueue(new Callback<JsonObject>() {
+                    @Override
+                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            List<Food> brandedFoods = filterUsdaByKeyword(parseUsdaResults(response.body()), query);
+                            finalList.addAll(brandedFoods);
+                        }
+
+                        // Step 3: OFF results
+                        offApi.searchFoods(query, 1, 1).enqueue(new Callback<JsonObject>() {
+                            @Override
+                            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                                if (response.isSuccessful() && response.body() != null) {
+                                    List<Food> offFoods = parseOffResults(response.body());
+                                    finalList.addAll(offFoods);
+                                }
+
+                                if (!finalList.isEmpty()) {
+                                    foodAdapter.updateList(finalList);
+                                } else {
+                                    Toast.makeText(getContext(), "No results found", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<JsonObject> call, Throwable t) {
+                                if (!finalList.isEmpty()) {
+                                    foodAdapter.updateList(finalList);
+                                } else {
+                                    Toast.makeText(getContext(), "OFF API error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(Call<JsonObject> call, Throwable t) {
+                        // If Branded fails, still go to OFF
+                        offApi.searchFoods(query, 1, 1).enqueue(new Callback<JsonObject>() {
+                            @Override
+                            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                                List<Food> offFoods = parseOffResults(response.body());
+                                foodAdapter.updateList(offFoods);
+                            }
+
+                            @Override
+                            public void onFailure(Call<JsonObject> call, Throwable t) {
+                                Toast.makeText(getContext(), "OFF API error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                // If Foundation fails, go directly to Branded -> OFF
+                searchUsdaBranded(query);
+            }
+        });
+    }
+
+    private List<Food> filterUsdaByKeyword(List<Food> foods, String query) {
+        query = query.toLowerCase();
+        List<Food> foundationMatches = new ArrayList<>();
+        List<Food> otherMatches = new ArrayList<>();
+
+        Map<String, String> genericOverrides = new HashMap<>();
+        genericOverrides.put("rice", "Rice, white, long-grain, raw");
+        genericOverrides.put("egg", "Egg, whole, raw, fresh");
+
+        for (Food f : foods) {
+            String name = f.getName().toLowerCase();
+            if (genericOverrides.containsKey(query) && name.contains(genericOverrides.get(query).toLowerCase())) {
+                foundationMatches.add(f);
+                continue;
+            }
+
+            if (name.contains(query) && (name.contains("raw") || name.contains("unprepared"))) {
+                foundationMatches.add(f);
+            } else {
+                otherMatches.add(f);
+            }
+        }
+
+        final String queryLower = query;
+        foundationMatches.sort((f1, f2) -> {
+            String n1 = f1.getName().toLowerCase();
+            String n2 = f2.getName().toLowerCase();
+            if (n1.equals(queryLower)) return -1;
+            if (n2.equals(queryLower)) return 1;
+            return n1.indexOf(queryLower) - n2.indexOf(queryLower);
+        });
+
+        List<Food> finalList = new ArrayList<>();
+        finalList.addAll(foundationMatches);
+        finalList.addAll(otherMatches);
+        return finalList;
+    }
+
+    private void searchUsdaBranded(String query) {
+        usdaApi.searchFoods(query, USDA_API_KEY, "Branded").enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<Food> foods = parseNutritionixResults(response.body());
-                    foodAdapter.updateList(foods);
+                    List<Food> foods = parseUsdaResults(response.body());
+                    foods = filterUsdaByKeyword(foods, query);
+                    if (!foods.isEmpty()) {
+                        foodAdapter.updateList(foods);
+                    } else {
+                        searchOff(query);
+                    }
                 } else {
-                    Toast.makeText(getContext(),
-                            "No results: " + response.code(),
-                            Toast.LENGTH_SHORT).show();
+                    searchOff(query);
                 }
             }
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
-                Toast.makeText(getContext(),
-                        "API error: " + t.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+                searchOff(query);
             }
         });
     }
 
+    private void searchOff(String query) {
+        offApi.searchFoods(query, 1, 1).enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Food> foods = parseOffResults(response.body());
+                    if (!foods.isEmpty()) {
+                        foodAdapter.updateList(foods);
+                    } else {
+                        Toast.makeText(getContext(), "No results found", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "OFF search failed: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Toast.makeText(getContext(), "OFF API error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // === Parse USDA ===
+    private List<Food> parseUsdaResults(JsonObject body) {
+        List<Food> foods = new ArrayList<>();
+        if (!body.has("foods")) return foods;
+
+        JsonArray array = body.getAsJsonArray("foods");
+        for (JsonElement e : array) {
+            JsonObject obj = e.getAsJsonObject();
+            if (obj.has("description") && !obj.get("description").getAsString().matches(".*\\p{IsLatin}.*"))
+                continue;
+
+            String name = obj.has("description") ? obj.get("description").getAsString() : "Unknown";
+            double cal = 0, protein = 0, carbs = 0, fat = 0;
+
+            if (obj.has("foodNutrients")) {
+                JsonArray nutrients = obj.getAsJsonArray("foodNutrients");
+                for (JsonElement n : nutrients) {
+                    JsonObject nutrient = n.getAsJsonObject();
+                    String nutrientName = nutrient.get("nutrientName").getAsString();
+                    double value = nutrient.has("value") ? nutrient.get("value").getAsDouble() : 0;
+
+                    switch (nutrientName.toLowerCase()) {
+                        case "energy": cal = value; break;
+                        case "protein": protein = value; break;
+                        case "carbohydrate, by difference": carbs = value; break;
+                        case "total lipid (fat)": fat = value; break;
+                    }
+                }
+            }
+            String details = String.format("%.0f kcal | %.0fg P | %.0fg C | %.0fg F", cal, protein, carbs, fat);
+            foods.add(new Food(name, (int) cal, details));
+        }
+        return foods;
+    }
+
+    // === Parse OFF ===
+    private List<Food> parseOffResults(JsonObject body) {
+        List<Food> foods = new ArrayList<>();
+        if (!body.has("products")) return foods;
+
+        JsonArray array = body.getAsJsonArray("products");
+        for (JsonElement e : array) {
+            JsonObject obj = e.getAsJsonObject();
+            String name = obj.has("product_name") ? obj.get("product_name").getAsString() : "Unknown";
+
+            double cal = 0, protein = 0, carbs = 0, fat = 0;
+            if (obj.has("nutriments")) {
+                JsonObject n = obj.getAsJsonObject("nutriments");
+                cal = n.has("energy-kcal_100g") ? n.get("energy-kcal_100g").getAsDouble() : 0;
+                protein = n.has("proteins_100g") ? n.get("proteins_100g").getAsDouble() : 0;
+                carbs = n.has("carbohydrates_100g") ? n.get("carbohydrates_100g").getAsDouble() : 0;
+                fat = n.has("fat_100g") ? n.get("fat_100g").getAsDouble() : 0;
+            }
+            String details = String.format("%.0f kcal | %.0fg P | %.0fg C | %.0fg F", cal, protein, carbs, fat);
+            foods.add(new Food(name, (int) cal, details));
+        }
+        return foods;
+    }
+
+    // === Logging / Deleting foods ===
     private void logFood(Food food) {
         List<Food> logged = loadLoggedFoodsList();
         logged.add(food);
@@ -187,7 +419,6 @@ public class FoodBottomSheet extends BottomSheetDialogFragment {
         dismiss();
     }
 
-    // LOGGED MODE: delete with confirmation
     private void confirmDeleteFood(Food food) {
         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Delete food?")
@@ -217,47 +448,22 @@ public class FoodBottomSheet extends BottomSheetDialogFragment {
         foodAdapter.updateList(loadLoggedFoodsList());
     }
 
-    // Parsing remains unchanged
-    private List<Food> parseNutritionixResults(JsonObject body) {
-        List<Food> foods = new ArrayList<>();
-
-        JsonArray common = body.has("common") ? body.getAsJsonArray("common") : null;
-        if (common != null) {
-            for (JsonElement e : common) {
-                JsonObject o = e.getAsJsonObject();
-                String name = o.get("food_name").getAsString();
-                double cal = o.has("nf_calories") ? o.get("nf_calories").getAsDouble() : 0;
-                double protein = o.has("nf_protein") ? o.get("nf_protein").getAsDouble() : 0;
-                double carbs = o.has("nf_total_carbohydrate") ? o.get("nf_total_carbohydrate").getAsDouble() : 0;
-                double fat = o.has("nf_total_fat") ? o.get("nf_total_fat").getAsDouble() : 0;
-                String details = String.format("%.0f kcal | %.0fg P | %.0fg C | %.0fg F", cal, protein, carbs, fat);
-                foods.add(new Food(name, (int) cal, details));
-            }
-        }
-
-        JsonArray branded = body.has("branded") ? body.getAsJsonArray("branded") : null;
-        if (branded != null) {
-            for (JsonElement e : branded) {
-                JsonObject o = e.getAsJsonObject();
-                String name = o.get("food_name").getAsString();
-                double cal = o.has("nf_calories") ? o.get("nf_calories").getAsDouble() : 0;
-                double protein = o.has("nf_protein") ? o.get("nf_protein").getAsDouble() : 0;
-                double carbs = o.has("nf_total_carbohydrate") ? o.get("nf_total_carbohydrate").getAsDouble() : 0;
-                double fat = o.has("nf_total_fat") ? o.get("nf_total_fat").getAsDouble() : 0;
-                String details = String.format("%.0f kcal | %.0fg P | %.0fg C | %.0fg F", cal, protein, carbs, fat);
-                foods.add(new Food(name, (int) cal, details));
-            }
-        }
-
-        return foods;
-    }
-
-    interface NutritionixApi {
-        @GET("v2/search/instant")
+    // === Retrofit Interfaces ===
+    interface UsdaApi {
+        @GET("foods/search")
         Call<JsonObject> searchFoods(
                 @Query("query") String query,
-                @Header("x-app-id") String appId,
-                @Header("x-app-key") String apiKey
+                @Query("api_key") String apiKey,
+                @Query("dataType") String dataType // "Foundation" or "Branded"
+        );
+    }
+
+    interface OffApi {
+        @GET("cgi/search.pl")
+        Call<JsonObject> searchFoods(
+                @Query("search_terms") String query,
+                @Query("search_simple") int simple,
+                @Query("json") int json
         );
     }
 }
