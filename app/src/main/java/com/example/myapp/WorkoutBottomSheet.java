@@ -208,6 +208,8 @@ public class WorkoutBottomSheet extends BottomSheetDialogFragment {
             for (Workout w : workoutsFragment.currentWorkouts) {
                 if (w.getName().equals(workoutName)) {
                     w.setExercises(new ArrayList<>(exerciseList));
+                    // ✅ Save changes to SharedPreferences
+                    workoutsFragment.saveWorkouts(workoutsFragment.currentTabKey, workoutsFragment.currentWorkouts);
                     workoutsFragment.workoutAdapter.notifyDataSetChanged();
                     break;
                 }

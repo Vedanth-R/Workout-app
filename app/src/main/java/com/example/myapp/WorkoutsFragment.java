@@ -41,7 +41,7 @@ public class WorkoutsFragment extends Fragment {
     private SharedPreferences sharedPreferences;
     private Gson gson = new Gson();
 
-    private String currentTabKey = "workouts"; // Default tab key
+    String currentTabKey = "workouts"; // Default tab key
 
     @Nullable
     @Override
@@ -134,7 +134,7 @@ public class WorkoutsFragment extends Fragment {
         updateEmptyState();
     }
 
-    private void saveWorkouts(String key, List<Workout> list) {
+    void saveWorkouts(String key, List<Workout> list) {
         sharedPreferences.edit().putString(key, gson.toJson(list)).apply();
     }
 
