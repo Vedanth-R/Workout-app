@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -72,11 +73,15 @@ public class NutritionFragment extends Fragment {
         btnAddItem = view.findViewById(R.id.btnAddItem);
         rvShoppingList = view.findViewById(R.id.rvShoppingList);
         shoppingListItems = new ArrayList<>();
-        shoppingListAdapter = new ShoppingListAdapter(shoppingListItems);
+        shoppingListItems = new ArrayList<>();
+        shoppingListAdapter = new ShoppingListAdapter(shoppingListItems, updatedList -> {
+            saveShoppingList(); // just save when the list changes
+        });
+
         rvShoppingList.setLayoutManager(new LinearLayoutManager(getContext()));
         rvShoppingList.setAdapter(shoppingListAdapter);
 
-        // Load data
+// Load data
         loadCalories();
         loadShoppingList();
         updateMealCalories();
@@ -175,10 +180,29 @@ public class NutritionFragment extends Fragment {
             Toast.makeText(getContext(), "Shopping list limit reached (50 items).", Toast.LENGTH_SHORT).show();
             return;
         }
-        String newItem = "New Item " + (shoppingListItems.size() + 1); // placeholder
-        shoppingListItems.add(newItem);
-        shoppingListAdapter.notifyDataSetChanged();
 
+        EditText etNewItem = new EditText(getContext());
+        etNewItem.setHint("Enter item");
+
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Add Shopping Item")
+                .setView(etNewItem)
+                .setPositiveButton("Add", (dialog, which) -> {
+                    String newItem = etNewItem.getText().toString().trim();
+                    if (!newItem.isEmpty()) {
+                        shoppingListItems.add(newItem);
+                        shoppingListAdapter.notifyDataSetChanged();
+                        saveShoppingList();
+                    } else {
+                        Toast.makeText(getContext(), "Item cannot be empty", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    // Save current shopping list to SharedPreferences
+    private void saveShoppingList() {
         Set<String> itemsSet = new HashSet<>(shoppingListItems);
         sharedPreferences.edit().putStringSet("shopping_list", itemsSet).apply();
     }

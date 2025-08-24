@@ -70,9 +70,7 @@ public class NutritionActivity extends AppCompatActivity {
         shoppingListRecyclerView = findViewById(R.id.shoppingListRecyclerView);
 
         shoppingListItems = new ArrayList<>();
-        shoppingListAdapter = new ShoppingListAdapter(shoppingListItems);
-        shoppingListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        shoppingListRecyclerView.setAdapter(shoppingListAdapter);
+
 
         // Initialize day selector with 7 days starting today
         setupDaySelector();
