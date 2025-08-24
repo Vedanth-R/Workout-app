@@ -1,37 +1,24 @@
 package com.example.myapp.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Workout {
-    private String exercise;
-    private String reps;
-    private String weight;
+    private String name;
+    private List<Exercise> exercises;
 
-    public Workout(String exercise, String reps, String weight) {
-        this.exercise = exercise;
-        this.reps = reps;
-        this.weight = weight;
+    public Workout(String name) {
+        this.name = name;
+        this.exercises = new ArrayList<>();
     }
 
-    public String getExercise() {
-        return exercise;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public void setExercise(String exercise) {
-        this.exercise = exercise;
-    }
+    public List<Exercise> getExercises() { return exercises; }
+    public void setExercises(List<Exercise> exercises) { this.exercises = exercises; }
 
-    public String getReps() {
-        return reps;
-    }
-
-    public void setReps(String reps) {
-        this.reps = reps;
-    }
-
-    public String getWeight() {
-        return weight;
-    }
-
-    public void setWeight(String weight) {
-        this.weight = weight;
+    public void addExercise(Exercise exercise) {
+        this.exercises.add(exercise);
     }
 }

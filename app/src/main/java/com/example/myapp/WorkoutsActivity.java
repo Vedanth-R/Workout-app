@@ -111,7 +111,6 @@ public class WorkoutsActivity extends AppCompatActivity {
                 String selectedExercise = autoCompleteTextView.getText().toString().trim();
                 String currentListName = (String) listsSpinner.getSelectedItem();
                 if (!selectedExercise.isEmpty() && currentListName != null) {
-                    workoutLists.get(currentListName).add(new Workout(selectedExercise, "", ""));
                     updateWorkoutListAdapter(currentListName);
                     autoCompleteTextView.setText("");
                     saveWorkoutsForList(currentListName);
@@ -204,7 +203,6 @@ public class WorkoutsActivity extends AppCompatActivity {
         String currentListName = (String) listsSpinner.getSelectedItem();
         if (currentListName != null) {
             for (Workout workout : workoutLists.get(currentListName)) {
-                workoutNames.append(workout.getExercise()).append("\n");
             }
         }
 
@@ -232,14 +230,10 @@ public class WorkoutsActivity extends AppCompatActivity {
                 EditText weightEditText = convertView.findViewById(R.id.weightEditText);
                 ImageButton deleteButton = convertView.findViewById(R.id.deleteButton);
 
-                exerciseTextView.setText(workout.getExercise());
-                repsEditText.setText(workout.getReps());
-                weightEditText.setText(workout.getWeight());
 
                 repsEditText.addTextChangedListener(new SimpleTextWatcher() {
 
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        workout.setReps(s.toString());
                         saveWorkoutsForList((String) listsSpinner.getSelectedItem());
                     }
                 });
@@ -247,7 +241,6 @@ public class WorkoutsActivity extends AppCompatActivity {
                 weightEditText.addTextChangedListener(new SimpleTextWatcher() {
 
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        workout.setWeight(s.toString());
                         saveWorkoutsForList((String) listsSpinner.getSelectedItem());
                     }
                 });
@@ -255,7 +248,6 @@ public class WorkoutsActivity extends AppCompatActivity {
                 exerciseTextView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(WorkoutsActivity.this, workout.getExercise(), Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -292,7 +284,6 @@ public class WorkoutsActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         Set<String> set = new HashSet<>();
         for (Workout workout : workoutLists.get(listName)) {
-            set.add(workout.getExercise() + ";" + workout.getReps() + ";" + workout.getWeight());
         }
         editor.putStringSet(listName, set);
         editor.apply();
@@ -306,7 +297,6 @@ public class WorkoutsActivity extends AppCompatActivity {
             String exercise = parts[0];
             String reps = parts.length > 1 ? parts[1] : "";
             String weight = parts.length > 2 ? parts[2] : "";
-            workoutList.add(new Workout(exercise, reps, weight));
         }
         return workoutList;
     }

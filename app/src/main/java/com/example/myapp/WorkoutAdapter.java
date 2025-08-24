@@ -2,21 +2,40 @@ package com.example.myapp;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.myapp.R;
 import com.example.myapp.model.Workout;
+import com.google.android.material.button.MaterialButton;
+
 import java.util.List;
 
 public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutViewHolder> {
-    private List<Workout> workoutList;
-    private Context context;
 
-    public WorkoutAdapter(List<Workout> workoutList, Context context) {
-        this.workoutList = workoutList;
+    public interface OnWorkoutClickListener {
+        void onWorkoutClick(Workout workout);
+        void onAddExerciseClick(Workout workout);
+        void onRenameWorkout(Workout workout);
+        void onDeleteWorkout(Workout workout);
+    }
+
+    private Context context;
+    private List<Workout> workouts;
+    private OnWorkoutClickListener listener;
+
+    public WorkoutAdapter(Context context, List<Workout> workouts, OnWorkoutClickListener listener) {
         this.context = context;
+        this.workouts = workouts;
+        this.listener = listener;
     }
 
     @NonNull
@@ -28,33 +47,51 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.WorkoutV
 
     @Override
     public void onBindViewHolder(@NonNull WorkoutViewHolder holder, int position) {
-        Workout workout = workoutList.get(position);
-        holder.workoutNameTextView.setText(workout.getExercise());
-        
-        // Format the workout details
-        String details = workout.getReps() + " reps";
-        if (workout.getWeight() != null && !workout.getWeight().isEmpty()) {
-            details += " • " + workout.getWeight() + " kg";
-        }
-        holder.workoutDetailsTextView.setText(details);
+        Workout workout = workouts.get(position);
+        holder.tvName.setText(workout.getName());
 
-        holder.itemView.setOnClickListener(v -> {
-            // Handle item click if needed
+        int exerciseCount = workout.getExercises() != null ? workout.getExercises().size() : 0;
+        holder.tvDetails.setText(exerciseCount + " exercises");
+
+        holder.itemView.setOnClickListener(v -> listener.onWorkoutClick(workout));
+
+        holder.btnMenu.setOnClickListener(v -> {
+            PopupMenu popup = new PopupMenu(context, holder.btnMenu);
+            popup.getMenuInflater().inflate(R.menu.workout_menu, popup.getMenu());
+            popup.setOnMenuItemClickListener(item -> handleMenuClick(item, workout));
+            popup.show();
         });
+    }
+
+    private boolean handleMenuClick(MenuItem item, Workout workout) {
+        int id = item.getItemId();
+        if (id == R.id.menu_add_exercise) {
+            listener.onAddExerciseClick(workout);
+            return true;
+        } else if (id == R.id.menu_rename) {
+            listener.onRenameWorkout(workout);
+            return true;
+        } else if (id == R.id.menu_delete) {
+            listener.onDeleteWorkout(workout);
+            return true;
+        }
+        return false;
     }
 
     @Override
     public int getItemCount() {
-        return workoutList.size();
+        return workouts.size();
     }
 
-    static class WorkoutViewHolder extends RecyclerView.ViewHolder {
-        TextView workoutNameTextView, workoutDetailsTextView;
+    public static class WorkoutViewHolder extends RecyclerView.ViewHolder {
+        TextView tvName, tvDetails;
+        MaterialButton btnMenu;
 
-        WorkoutViewHolder(View itemView) {
+        public WorkoutViewHolder(@NonNull View itemView) {
             super(itemView);
-            workoutNameTextView = itemView.findViewById(R.id.tvWorkoutName);
-            workoutDetailsTextView = itemView.findViewById(R.id.tvWorkoutDetails);
+            tvName = itemView.findViewById(R.id.tvWorkoutName);
+            tvDetails = itemView.findViewById(R.id.tvWorkoutDetails);
+            btnMenu = itemView.findViewById(R.id.btnMoreOptions);
         }
     }
 }

@@ -13,7 +13,7 @@
 
     <fragment
         android:id="@+id/navigation_workouts"
-        android:name="com.example.myapp.WorkoutFragment"
+        android:name="com.example.myapp.WorkoutsFragment"
         android:label="@string/nav_workouts"
         tools:layout="@layout/fragment_workout" />
 

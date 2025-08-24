@@ -7,8 +7,6 @@
     android:background="?attr/colorSurface"
     android:padding="16dp">
 
-
-
     <!-- Search Bar -->
     <FrameLayout
         android:layout_width="match_parent"
@@ -17,7 +15,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Search for food">
+            android:hint="Search for exercise">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etFoodSearch"
@@ -25,8 +23,7 @@
                 android:layout_height="wrap_content"
                 android:imeOptions="actionSearch"
                 android:inputType="text"
-                android:paddingEnd="36dp"/> <!-- leave space for spinner -->
-
+                android:paddingEnd="36dp"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <ProgressBar
@@ -41,7 +38,8 @@
             android:visibility="gone"
             android:progressTint="@color/purple"/>
     </FrameLayout>
-    <!-- RecyclerView for food items -->
+
+    <!-- RecyclerView for exercises -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvFoodItems"
         android:layout_width="match_parent"

@@ -1,5 +1,8 @@
 package com.example.myapp;
 
+import static androidx.core.content.ContentProviderCompat.requireContext;
+
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -76,7 +79,6 @@ public class StopwatchActivity extends AppCompatActivity {
 
         workoutList = new ArrayList<>();
 
-        workoutAdapter = new WorkoutAdapter(workoutList, this);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(workoutAdapter);
 
@@ -188,6 +190,9 @@ public class StopwatchActivity extends AppCompatActivity {
         });
 
     }
+
+
+
     private void retrieveWorkouts(String listName) {
         workoutList.clear();
         Set<String> workoutSet = sharedPreferences.getStringSet(listName, new HashSet<>());
@@ -200,8 +205,6 @@ public class StopwatchActivity extends AppCompatActivity {
                 String reps = parts.length > 1 ? parts[1] : "";
                 String weight = parts.length > 2 ? parts[2] : "";
 
-                // Add the workout to the list
-                workoutList.add(new Workout(exercise, reps, weight));
             }
 
             workoutAdapter.notifyDataSetChanged();
