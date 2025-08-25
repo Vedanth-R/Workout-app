@@ -16,10 +16,10 @@
     <string name="already_have_account">Already have an account?</string>
 
     <!-- Navigation -->
-    <string name="nav_workouts">Workout</string>
+    <string name="nav_workouts">Routines</string>
     <string name="nav_nutrition">Nutrition</string>
     <string name="nav_home">Home</string>
-    <string name="nav_timer">Timer</string>
+    <string name="nav_timer">Train</string>
     <string name="nav_achievements">Trophies</string>
 
     <!-- Home Screen -->

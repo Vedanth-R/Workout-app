@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -18,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Exercise Name"
-            android:textAppearance="?attr/textAppearanceBodyLarge"/>
+            android:textAppearance="?attr/textAppearanceBodyLarge" />
 
         <TextView
             android:id="@+id/tvExerciseDetails"
@@ -26,14 +27,15 @@
             android:layout_height="wrap_content"
             android:text="10 reps • 50 kg"
             android:textAppearance="?attr/textAppearanceBodyMedium"
-            android:textColor="?attr/colorOnSurfaceVariant"/>
+            android:textColor="?attr/colorOnSurfaceVariant" />
     </LinearLayout>
 
     <ImageButton
         android:id="@+id/btnDeleteExercise"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:src="@drawable/ic_more_vert"
+        android:src="@drawable/ic_trash"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Delete Exercise"/>
+        android:contentDescription="Delete Exercise"
+        app:tint="?attr/colorOnSurfaceVariant" />
 </LinearLayout>
