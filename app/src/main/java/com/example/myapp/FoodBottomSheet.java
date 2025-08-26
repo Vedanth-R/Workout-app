@@ -497,7 +497,7 @@ public class FoodBottomSheet extends BottomSheetDialogFragment {
         sharedPreferences.edit().putString(mealType + "_foods", gson.toJson(list)).apply();
     }
 
-    private void loadLoggedFoods() {
+    void loadLoggedFoods() {
         foodAdapter.updateList(loadLoggedFoodsList());
     }
 
