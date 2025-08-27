@@ -1,5 +1,6 @@
 package com.example.myapp;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -22,6 +23,9 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
@@ -49,6 +53,8 @@ public class NutritionFragment extends Fragment {
     private static final String PREFS_NAME = "nutrition_prefs";
     private static final int MAX_SHOPPING_ITEMS = 50;
     private static final String PREF_LAST_RESET = "last_reset_date";
+    private static final String KEY_LAST_7_DAYS = "last_7_days_calories";
+
 
     @Nullable
     @Override
@@ -109,6 +115,37 @@ public class NutritionFragment extends Fragment {
         btnAddItem.setOnClickListener(v -> addShoppingItem());
 
         return view;
+    }
+
+    private void update7DayCalories(int todayCalories) {
+        SharedPreferences prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String json = prefs.getString(KEY_LAST_7_DAYS, null);
+
+        List<Integer> last7Days;
+        if (json != null) {
+            try {
+                JSONArray arr = new JSONArray(json);
+                last7Days = new ArrayList<>();
+                for (int i = 0; i < arr.length(); i++) {
+                    last7Days.add(arr.getInt(i));
+                }
+            } catch (JSONException e) {
+                last7Days = new ArrayList<>();
+            }
+        } else {
+            last7Days = new ArrayList<>();
+        }
+
+        // Add today
+        if (last7Days.size() >= 7) {
+            last7Days.remove(0); // remove oldest
+        }
+        last7Days.add(todayCalories);
+
+        // Save back
+        JSONArray newJson = new JSONArray();
+        for (int cal : last7Days) newJson.put(cal);
+        prefs.edit().putString(KEY_LAST_7_DAYS, newJson.toString()).apply();
     }
 
     // Opens FoodBottomSheet in SEARCH mode for "+" buttons
@@ -222,7 +259,11 @@ public class NutritionFragment extends Fragment {
         String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
         if (!today.equals(lastReset)) {
-            // New day → reset meals safely
+            // New day → first save today’s calories into rolling 7-day list
+            int todayCalories = getTotalCalories();
+            update7DayCalories(todayCalories);
+
+            // Then reset meals safely
             clearAllMealLogs();
 
             // Update last reset date AFTER clearing

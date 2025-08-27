@@ -92,15 +92,10 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="@string/your_progress"
+                        android:text="7 Day Calorie Progress"
                         android:textAppearance="?attr/textAppearanceTitleLarge"
                         android:textColor="?attr/colorOnSurface" />
 
-                    <Spinner
-                        android:id="@+id/spinnerMetric"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:minWidth="120dp" />
 
                 </LinearLayout>
 
@@ -175,10 +170,10 @@
                     android:padding="16dp">
 
                     <TextView
-                        android:id="@+id/tvCaloriesBurned"
+                        android:id="@+id/tvCaloriesToday"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="2,450"
+                        android:text=""
                         android:textAppearance="?attr/textAppearanceHeadlineLarge"
                         android:textColor="?attr/colorPrimary"
                         android:textStyle="bold" />
@@ -186,7 +181,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/calories_burned"
+                        android:text="Calories Eaten"
                         android:textAppearance="?attr/textAppearanceBodySmall"
                         android:textColor="?attr/colorOnSurfaceVariant"
                         android:textAlignment="center"
