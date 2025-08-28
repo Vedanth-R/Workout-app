@@ -3,6 +3,8 @@ package com.example.myapp;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,6 +29,8 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.github.mikephil.charting.utils.MPPointF;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -36,8 +41,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class HomeFragment extends Fragment {
 
@@ -108,22 +116,15 @@ public class HomeFragment extends Fragment {
 
         // Quick Actions
         btnQuickWorkout.setOnClickListener(v -> {
-            NavController navController = NavHostFragment.findNavController(this);
-            NavOptions options = new NavOptions.Builder()
-                    .setLaunchSingleTop(true) // Avoid multiple copies
-                    .setPopUpTo(R.id.navigation_home, false) // Optional: keeps home on the back stack
-                    .build();
-            navController.navigate(R.id.navigation_workouts, null, options);
+            BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
+            bottomNav.setSelectedItemId(R.id.navigation_workouts);
         });
 
         btnLogMeal.setOnClickListener(v -> {
-            NavController navController = NavHostFragment.findNavController(this);
-            NavOptions options = new NavOptions.Builder()
-                    .setLaunchSingleTop(true)
-                    .setPopUpTo(R.id.navigation_home, false)
-                    .build();
-            navController.navigate(R.id.navigation_nutrition, null, options);
+            BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
+            bottomNav.setSelectedItemId(R.id.navigation_nutrition);
         });
+
 
         // Personal Records "View All"
         tvViewAllPR.setOnClickListener(v -> {
@@ -173,13 +174,7 @@ public class HomeFragment extends Fragment {
                 tvWorkoutCount.setText(String.valueOf(count));
             }
         });
-        
-        // Observe calories burned changes
-        homeViewModel.getCaloriesBurned().observe(getViewLifecycleOwner(), calories -> {
-            if (tvCaloriesToday != null) {
-                tvCaloriesToday.setText(String.valueOf(calories));
-            }
-        });
+
         
         // Observe streak count changes
         homeViewModel.getStreakCount().observe(getViewLifecycleOwner(), streak -> {
@@ -192,31 +187,67 @@ public class HomeFragment extends Fragment {
     private void setupChartWithRealData() {
         List<Integer> last7Days = loadLast7DaysCalories();
 
+        // Reverse entries so newest day is on the right
         ArrayList<Entry> entries = new ArrayList<>();
         for (int i = 0; i < last7Days.size(); i++) {
-            entries.add(new Entry(i, last7Days.get(i)));
+            entries.add(new Entry(i, last7Days.get(last7Days.size() - 1 - i)));
         }
 
-        LineDataSet dataSet = new LineDataSet(entries, "Calories Last 7 Days");
-        dataSet.setColor(0xFF6200EE);
-        dataSet.setValueTextColor(0xFF000000);
+        int labelColor = Color.BLACK; // default for light mode
+        int lineColor = Color.BLACK;
+        int circleColor = Color.BLACK;
+
+        int nightModeFlags =
+                getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            labelColor = Color.WHITE;
+            lineColor = Color.WHITE;
+            circleColor = Color.WHITE;
+        }
+
+        // Line dataset
+        LineDataSet dataSet = new LineDataSet(entries, ""); // empty label removes legend
+        dataSet.setColor(lineColor);
+        dataSet.setValueTextColor(labelColor);
         dataSet.setLineWidth(2f);
-        dataSet.setCircleColor(0xFF6200EE);
+        dataSet.setCircleColor(circleColor);
         dataSet.setCircleRadius(4f);
         dataSet.setDrawValues(true);
+        dataSet.setValueTextSize(12f);
 
         LineData lineData = new LineData(dataSet);
         chartProgress.setData(lineData);
 
+        // --- Create labels for last 7 days ---
+        String[] days = new String[7];
+        Calendar cal = Calendar.getInstance();
+        for (int i = 6; i >= 0; i--) {
+            days[i] = new SimpleDateFormat("EEE", Locale.getDefault()).format(cal.getTime());
+            cal.add(Calendar.DAY_OF_YEAR, -1);
+        }
+
+        // Configure X-axis
         XAxis xAxis = chartProgress.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
+        xAxis.setTextColor(labelColor);
+        xAxis.setGranularity(1f);
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(days));
 
+        // Configure Y-axis
         YAxis leftAxis = chartProgress.getAxisLeft();
+        leftAxis.setTextColor(labelColor);
         leftAxis.setDrawGridLines(false);
 
-        chartProgress.getAxisRight().setEnabled(false);
+        YAxis rightAxis = chartProgress.getAxisRight();
+        rightAxis.setEnabled(false);
+
+        // Remove legend
+        chartProgress.getLegend().setEnabled(false);
+
+        // Disable description
         chartProgress.getDescription().setEnabled(false);
+
         chartProgress.invalidate();
     }
 
@@ -246,8 +277,6 @@ public class HomeFragment extends Fragment {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
 
-        YAxis leftAxis = chartProgress.getAxisLeft();
-        leftAxis.setDrawGridLines(false);
 
         chartProgress.getAxisRight().setEnabled(false);
         chartProgress.getDescription().setEnabled(false);
