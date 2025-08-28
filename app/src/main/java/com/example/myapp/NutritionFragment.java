@@ -1,5 +1,6 @@
 package com.example.myapp;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,10 +24,16 @@ import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 public class NutritionFragment extends Fragment {
@@ -44,6 +52,9 @@ public class NutritionFragment extends Fragment {
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "nutrition_prefs";
     private static final int MAX_SHOPPING_ITEMS = 50;
+    private static final String PREF_LAST_RESET = "last_reset_date";
+    private static final String KEY_LAST_7_DAYS = "last_7_days_calories";
+
 
     @Nullable
     @Override
@@ -52,6 +63,7 @@ public class NutritionFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_nutrition, container, false);
 
         sharedPreferences = requireActivity().getSharedPreferences(PREFS_NAME, getActivity().MODE_PRIVATE);
+
 
         // Calories section
         tvCaloriesConsumed = view.findViewById(R.id.tvCaloriesConsumed);
@@ -85,6 +97,7 @@ public class NutritionFragment extends Fragment {
         loadCalories();
         loadShoppingList();
         updateMealCalories();
+        resetMealsIfNewDay();
 
         // "+" buttons for adding/searching foods
         btnAddBreakfast.setOnClickListener(v -> openFoodBottomSheet("breakfast"));
@@ -102,6 +115,37 @@ public class NutritionFragment extends Fragment {
         btnAddItem.setOnClickListener(v -> addShoppingItem());
 
         return view;
+    }
+
+    private void update7DayCalories(int todayCalories) {
+        SharedPreferences prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String json = prefs.getString(KEY_LAST_7_DAYS, null);
+
+        List<Integer> last7Days;
+        if (json != null) {
+            try {
+                JSONArray arr = new JSONArray(json);
+                last7Days = new ArrayList<>();
+                for (int i = 0; i < arr.length(); i++) {
+                    last7Days.add(arr.getInt(i));
+                }
+            } catch (JSONException e) {
+                last7Days = new ArrayList<>();
+            }
+        } else {
+            last7Days = new ArrayList<>();
+        }
+
+        // Add today
+        if (last7Days.size() >= 7) {
+            last7Days.remove(0); // remove oldest
+        }
+        last7Days.add(todayCalories);
+
+        // Save back
+        JSONArray newJson = new JSONArray();
+        for (int cal : last7Days) newJson.put(cal);
+        prefs.edit().putString(KEY_LAST_7_DAYS, newJson.toString()).apply();
     }
 
     // Opens FoodBottomSheet in SEARCH mode for "+" buttons
@@ -205,5 +249,51 @@ public class NutritionFragment extends Fragment {
     private void saveShoppingList() {
         Set<String> itemsSet = new HashSet<>(shoppingListItems);
         sharedPreferences.edit().putStringSet("shopping_list", itemsSet).apply();
+    }
+
+    private void resetMealsIfNewDay() {
+        SharedPreferences prefs = sharedPreferences;
+        String lastReset = prefs.getString(PREF_LAST_RESET, "");
+
+        // Get today's date in yyyy-MM-dd format
+        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+        if (!today.equals(lastReset)) {
+            // New day → first save today’s calories into rolling 7-day list
+            int todayCalories = getTotalCalories();
+            update7DayCalories(todayCalories);
+
+            // Then reset meals safely
+            clearAllMealLogs();
+
+            // Update last reset date AFTER clearing
+            prefs.edit().putString(PREF_LAST_RESET, today).apply();
+        }
+    }
+
+    private void clearAllMealLogs() {
+        String[] meals = {"breakfast", "lunch", "dinner", "snacks"};
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        for (String meal : meals) {
+            editor.remove(meal + "_foods");
+        }
+        editor.apply();
+
+        // Update UI safely
+        tvBreakfastCalories.setText("0 cal");
+        tvLunchCalories.setText("0 cal");
+        tvDinnerCalories.setText("0 cal");
+        tvSnacksCalories.setText("0 cal");
+        tvCaloriesConsumed.setText("0");
+        progressCalories.setProgress(0);
+
+        // If FoodBottomSheet is open, notify it to reload empty lists
+        FragmentManager fm = getParentFragmentManager();
+        List<Fragment> fragments = fm.getFragments();
+        for (Fragment f : fragments) {
+            if (f instanceof FoodBottomSheet) {
+                ((FoodBottomSheet) f).loadLoggedFoods(); // safely reload
+            }
+        }
     }
 }
