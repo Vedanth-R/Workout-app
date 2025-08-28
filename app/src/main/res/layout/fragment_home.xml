@@ -48,22 +48,22 @@
 
             </LinearLayout>
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                app:cardCornerRadius="24dp"
-                app:cardBackgroundColor="?attr/colorPrimaryContainer">
+<!--            <com.google.android.material.card.MaterialCardView-->
+<!--                android:layout_width="48dp"-->
+<!--                android:layout_height="48dp"-->
+<!--                app:cardCornerRadius="24dp"-->
+<!--                app:cardBackgroundColor="?attr/colorPrimaryContainer">-->
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="U"
-                    android:textSize="20sp"
-                    android:textColor="?attr/colorOnPrimaryContainer"
-                    android:gravity="center"
-                    android:textStyle="bold" />
+<!--                <TextView-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:text="U"-->
+<!--                    android:textSize="20sp"-->
+<!--                    android:textColor="?attr/colorOnPrimaryContainer"-->
+<!--                    android:gravity="center"-->
+<!--                    android:textStyle="bold" />-->
 
-            </com.google.android.material.card.MaterialCardView>
+<!--            </com.google.android.material.card.MaterialCardView>-->
 
         </LinearLayout>
 

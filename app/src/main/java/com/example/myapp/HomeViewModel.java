@@ -39,11 +39,11 @@ public class HomeViewModel extends ViewModel {
         String greetingText;
         
         if (hour < 12) {
-            greetingText = "Good Morning, User";
+            greetingText = "Good Morning";
         } else if (hour < 17) {
-            greetingText = "Good Afternoon, User";
+            greetingText = "Good Afternoon";
         } else {
-            greetingText = "Good Evening, User";
+            greetingText = "Good Evening";
         }
         
         greeting.setValue(greetingText);
