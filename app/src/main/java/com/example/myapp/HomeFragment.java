@@ -89,7 +89,7 @@ public class HomeFragment extends Fragment {
         btnLogMeal = view.findViewById(R.id.btnLogMeal);
 
         // Optional: if you moved FABs into the fragment (else keep in MainActivity)
-        fabSettings = getActivity().findViewById(R.id.fabSettings);
+//        fabSettings = getActivity().findViewById(R.id.fabSettings);
 
         // Observe ViewModel data
         observeViewModelData();

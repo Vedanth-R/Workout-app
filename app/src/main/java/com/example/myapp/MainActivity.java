@@ -32,11 +32,11 @@ public class MainActivity extends AppCompatActivity {
         // Setup Navigation
         setupNavigation();
 
-        FloatingActionButton fab = findViewById(R.id.fabSettings);
-        fab.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(intent);
-        });
+//        FloatingActionButton fab = findViewById(R.id.fabSettings);
+//        fab.setOnClickListener(v -> {
+//            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+//            startActivity(intent);
+//        });
     }
     
     private void setupNavigation() {
