@@ -1,72 +1,59 @@
 package com.example.myapp;
 
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-
+import android.view.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import com.example.myapp.R;
+import com.example.myapp.achievements.*;
+import com.google.android.material.divider.MaterialDividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.card.MaterialCardView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class AchievementsFragment extends Fragment {
 
-    private RecyclerView rvAchievements;
-    private TextView tvTotalAchievements;
-    private Integer numAchievements = 7;
+    private AchievementsViewModel vm;
+    private InProgressAdapter inProgressAdapter;
+    private UnlockedAdapter unlockedAdapter;
+    private PRAdapter prAdapter;
 
-    @Nullable
+    @Nullable @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_achievements, container, false);
+    }
+
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_achievements, container, false);
+    public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(v, savedInstanceState);
+        vm = new ViewModelProvider(this).get(AchievementsViewModel.class);
 
-        rvAchievements = view.findViewById(R.id.rvAchievements);
-        tvTotalAchievements = view.findViewById(R.id.tvTotalAchievements);
+        RecyclerView rvInProgress = v.findViewById(R.id.rvInProgress);
+        RecyclerView rvUnlocked   = v.findViewById(R.id.rvUnlocked);
+        RecyclerView rvPRs        = v.findViewById(R.id.rvPRs);
 
-        setupAchievements();
+        inProgressAdapter = new InProgressAdapter();
+        unlockedAdapter = new UnlockedAdapter();
+        prAdapter = new PRAdapter();
 
-        String achievements = getString(R.string.nav_achievements) + ": " + numAchievements;
-        tvTotalAchievements.setText(achievements);
+        // In Progress: vertical list
+        rvInProgress.setLayoutManager(new LinearLayoutManager(requireContext()));
+        rvInProgress.setAdapter(inProgressAdapter);
 
+        // Unlocked: small grid (e.g., 3 columns)
+        rvUnlocked.setLayoutManager(new GridLayoutManager(requireContext(), 3));
+        rvUnlocked.setAdapter(unlockedAdapter);
 
-        return view;
-    }
+        // PRs: vertical list
+        rvPRs.setLayoutManager(new LinearLayoutManager(requireContext()));
+        rvPRs.addItemDecoration(new MaterialDividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL));
+        rvPRs.setAdapter(prAdapter);
 
-    private void setupAchievements() {
-        // Dummy achievements data
-        List<Achievement> achievements = new ArrayList<>();
-        achievements.add(new Achievement("First Workout", "Complete your first workout", "🏋️", true));
-        achievements.add(new Achievement("Week Warrior", "Work out 7 days in a row", "🔥", true));
-        achievements.add(new Achievement("Goal Setter", "Set your first fitness goal", "🎯", true));
-        achievements.add(new Achievement("Nutrition Tracker", "Log meals for 3 days", "🥗", false));
-        achievements.add(new Achievement("Consistency King", "Work out for 30 days", "👑", false));
-
-        tvTotalAchievements.setText("Achievements: " + achievements.size());
-
-        // TODO: Create and set up achievements adapter
-        // For now, just show the count
-    }
-
-    private static class Achievement {
-        String title;
-        String description;
-        String icon;
-        boolean unlocked;
-
-        Achievement(String title, String description, String icon, boolean unlocked) {
-            this.title = title;
-            this.description = description;
-            this.icon = icon;
-            this.unlocked = unlocked;
-        }
+        // Observe
+        vm.inProgressLimited.observe(getViewLifecycleOwner(), inProgressAdapter::submit);
+        vm.unlockedCapped.observe(getViewLifecycleOwner(), unlockedAdapter::submit);
+        vm.personalRecords.observe(getViewLifecycleOwner(), prAdapter::submit);
     }
 }

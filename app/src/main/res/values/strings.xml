@@ -64,9 +64,13 @@
 
     <!-- Achievements -->
     <string name="your_achievements">Your Trophies</string>
+    <string name="achievements">Trophies</string>
     <string name="locked">Locked</string>
     <string name="unlocked">Unlocked</string>
     <string name="progress">Progress</string>
+    <string name="in_progress">In Progress</string>
+    <string name="achievement_badge">Achievement badge</string>
+
 
     <!-- Settings -->
     <string name="settings">Settings</string>
