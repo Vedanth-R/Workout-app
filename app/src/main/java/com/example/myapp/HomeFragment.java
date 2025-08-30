@@ -67,6 +67,7 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         loadCaloriesToday();
+        loadWeeklyWorkouts();
     }
 
     @Nullable
@@ -104,7 +105,7 @@ public class HomeFragment extends Fragment {
 
         // Setup chart
         setupChartWithRealData();
-
+		loadWeeklyWorkouts();
         loadCaloriesToday();
 
         // FAB click listeners
@@ -169,11 +170,14 @@ public class HomeFragment extends Fragment {
         });
         
         // Observe workout count changes
-        homeViewModel.getWorkoutCount().observe(getViewLifecycleOwner(), count -> {
+        /*homeViewModel.getWorkoutCount().observe(getViewLifecycleOwner(), count -> {
             if (tvWorkoutCount != null) {
-                tvWorkoutCount.setText(String.valueOf(count));
+//                tvWorkoutCount.setText(String.valueOf(count));
+                int weekly = Prefs.getWorkoutsThisWeek(requireContext());
+                tvWorkoutCount.setText(String.valueOf(weekly));
             }
         });
+*/
 
         
         // Observe streak count changes
@@ -182,6 +186,13 @@ public class HomeFragment extends Fragment {
                 tvStreakCount.setText(String.valueOf(streak));
             }
         });
+    }
+
+    private void loadWeeklyWorkouts() {
+        int weekly = Prefs.getWorkoutsThisWeek(requireContext());
+        if (tvWorkoutCount != null) {
+            tvWorkoutCount.setText(String.valueOf(weekly));
+        }
     }
 
     private void setupChartWithRealData() {

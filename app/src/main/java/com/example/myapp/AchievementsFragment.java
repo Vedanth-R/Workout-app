@@ -100,10 +100,14 @@ public class AchievementsFragment extends Fragment {
     private void setupOverview() {
         // Placeholder numbers for now; replace with real data later.
         // These IDs match the XML you added.
-        if (tvStreakValue != null) tvStreakValue.setText("7");           // Weekly Streak (days)
-        if (tvBenchPRValue != null) tvBenchPRValue.setText("225");       // Bench PR (lb)
-        if (tvTotalWorkoutsValue != null) tvTotalWorkoutsValue.setText("42"); // Total Workouts
-        if (tvActiveDaysValue != null) tvActiveDaysValue.setText("12");  // Active Days (This Month)
+
+        // Get data from Prefs
+        int total = Prefs.getTotalWorkouts(requireContext());
+
+        if (tvStreakValue != null) tvStreakValue.setText("0");           // Weekly Streak (days)
+        if (tvBenchPRValue != null) tvBenchPRValue.setText("0");       // Bench PR (lb)
+        if (tvTotalWorkoutsValue != null) tvTotalWorkoutsValue.setText(String.valueOf(total));; // Total Workouts
+        if (tvActiveDaysValue != null) tvActiveDaysValue.setText("0");  // Active Days (This Month)
 
         // TODO: Optionally style cells differently (e.g., badges/emoji), or add click-throughs.
         // TODO: Pull these values from persistence (Room) or backend via ViewModel.

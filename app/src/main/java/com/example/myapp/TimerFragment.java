@@ -147,7 +147,12 @@ public class TimerFragment extends Fragment {
 
         btnSummaryDone.setOnClickListener(v -> {
             // TODO: Persist workout session details to your data layer if desired
-            // For now, just hide summary
+            // For now, just hide
+
+            Prefs.incrementTotalWorkouts(requireContext());          // +1 lifetime
+            Prefs.incrementWorkoutsThisWeek(requireContext());       // +1 this week (auto-resets on week boundary)
+
+
             summaryPanel.setVisibility(View.GONE);
             resetUI();
         });
