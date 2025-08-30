@@ -13,14 +13,14 @@
     </style>
 
     <style name="Theme.MyApp" parent="Base.Theme.MyApp" />
-    
+
     <!-- Bottom Navigation Styles -->
     <style name="BottomNavigationTextActive" parent="TextAppearance.Material3.LabelSmall">
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">?attr/colorPrimary</item>
         <item name="android:textStyle">bold</item>
     </style>
-    
+
     <style name="BottomNavigationTextInactive" parent="TextAppearance.Material3.LabelSmall">
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">?attr/colorOnSurfaceVariant</item>

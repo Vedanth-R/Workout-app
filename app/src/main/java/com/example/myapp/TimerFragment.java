@@ -152,6 +152,10 @@ public class TimerFragment extends Fragment {
             Prefs.incrementTotalWorkouts(requireContext());          // +1 lifetime
             Prefs.incrementWorkoutsThisWeek(requireContext());       // +1 this week (auto-resets on week boundary)
 
+            // NEW: Weekly Streak and Active Days
+            Prefs.updateWeeklyStreakOnWorkout(requireContext());
+            Prefs.markActiveDayThisMonth(requireContext());
+
 
             summaryPanel.setVisibility(View.GONE);
             resetUI();

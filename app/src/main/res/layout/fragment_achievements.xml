@@ -107,7 +107,7 @@
                                 android:id="@+id/tvStreakValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="7"
+                                android:text="0"
                                 android:textAppearance="?attr/textAppearanceHeadlineLarge"
                                 android:textColor="?attr/colorPrimary"
                                 android:textStyle="bold" />
@@ -116,7 +116,7 @@
                                 android:id="@+id/tvStreakLabel"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Weekly Streak (days)"
+                                android:text="Streak (weeks)"
                                 android:textAppearance="?attr/textAppearanceBodySmall"
                                 android:textColor="?attr/colorOnSurfaceVariant" />
                         </LinearLayout>
@@ -142,7 +142,7 @@
                                 android:id="@+id/tvBenchPRLabel"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Bench Press PR (lb)"
+                                android:text="Bench Press PR (kg)"
                                 android:textAppearance="?attr/textAppearanceBodySmall"
                                 android:textColor="?attr/colorOnSurfaceVariant" />
                         </LinearLayout>
@@ -166,7 +166,7 @@
                                 android:id="@+id/tvTotalWorkoutsValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="42"
+                                android:text="0"
                                 android:textAppearance="?attr/textAppearanceHeadlineLarge"
                                 android:textColor="?attr/colorPrimary"
                                 android:textStyle="bold" />

@@ -103,11 +103,14 @@ public class AchievementsFragment extends Fragment {
 
         // Get data from Prefs
         int total = Prefs.getTotalWorkouts(requireContext());
+        int streak = Prefs.getWeeklyStreak(requireContext());
+//        int bench = Prefs.getBenchPR(requireContext());
+        int active = Prefs.getActiveDaysThisMonth(requireContext());
 
-        if (tvStreakValue != null) tvStreakValue.setText("0");           // Weekly Streak (days)
+        if (tvStreakValue != null) tvStreakValue.setText(String.valueOf(streak));           // Weekly Streak (days)
         if (tvBenchPRValue != null) tvBenchPRValue.setText("0");       // Bench PR (lb)
         if (tvTotalWorkoutsValue != null) tvTotalWorkoutsValue.setText(String.valueOf(total));; // Total Workouts
-        if (tvActiveDaysValue != null) tvActiveDaysValue.setText("0");  // Active Days (This Month)
+        if (tvActiveDaysValue != null) tvActiveDaysValue.setText(String.valueOf(active));  // Active Days (This Month)
 
         // TODO: Optionally style cells differently (e.g., badges/emoji), or add click-throughs.
         // TODO: Pull these values from persistence (Room) or backend via ViewModel.
