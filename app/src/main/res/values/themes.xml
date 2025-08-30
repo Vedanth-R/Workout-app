@@ -1,8 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.MyApp" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.MyApp" parent="Theme.Material3.Dark.NoActionBar">
         <!-- Customize your light theme here -->
-        <item name="colorPrimary">@color/lightblue</item>
+<!--        <item name="colorPrimary">@color/lightblue</item>-->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowTranslucentStatus">false</item>
