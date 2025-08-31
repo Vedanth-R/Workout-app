@@ -29,7 +29,8 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:contentDescription="@string/achievement_badge"
-                tools:src="@drawable/ic_achievements" />
+                app:tint="?attr/colorOnSurfaceVariant"
+                tools:src="@drawable/ic_lock" />
 
             <TextView
                 android:id="@+id/tvTrophyStatus"

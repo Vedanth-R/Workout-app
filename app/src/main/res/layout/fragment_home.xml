@@ -300,7 +300,8 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:padding="8dp" />
+                        android:padding="8dp"
+                        android:visibility="gone"/>
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView

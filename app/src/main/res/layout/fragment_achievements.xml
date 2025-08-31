@@ -141,7 +141,7 @@
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
 
-                        <!-- Bench PR -->
+                        <!-- Trophies Unlocked -->
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -159,27 +159,30 @@
                                 android:padding="16dp"
                                 android:gravity="center">
 
+                                <!-- NEW ID -->
                                 <TextView
-                                    android:id="@+id/tvBenchPRValue"
+                                    android:id="@+id/tvTrophiesUnlockedValue"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="225"
+                                    android:text="0"
                                     android:textSize="32sp"
                                     android:textColor="@color/vibrantAccent"
                                     android:textStyle="bold"
                                     android:fontFamily="sans-serif-medium" />
 
+                                <!-- NEW ID/label -->
                                 <TextView
-                                    android:id="@+id/tvBenchPRLabel"
+                                    android:id="@+id/tvTrophiesUnlockedLabel"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Bench Press PR (kg)"
+                                    android:text="Trophies Unlocked"
                                     android:textSize="12sp"
                                     android:textColor="@color/hintColor"
                                     android:textAlignment="center"
                                     android:layout_marginTop="4dp" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
+
                     </LinearLayout>
 
                     <!-- Row 2 -->
@@ -317,7 +320,8 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:padding="8dp" />
+                        android:padding="8dp"
+                        android:visibility="gone"/>
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView

@@ -28,6 +28,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.myapp.data.TrophyRepository;
+
 public class WorkoutsFragment extends Fragment {
 
     private TabLayout tabLayout;
@@ -136,6 +138,12 @@ public class WorkoutsFragment extends Fragment {
 
     void saveWorkouts(String key, List<Workout> list) {
         sharedPreferences.edit().putString(key, gson.toJson(list)).apply();
+
+        /*~~~~~~~~~~~~~~~~~~~~~~~~~~~TROPHY~~~~~~~~~~~~~~~~~~~~~~~~~*/
+        // After you confirm save succeeded:
+        TrophyRepository.getInstance(requireContext()).onRoutineCreated();
+        /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
     }
 
     // --- Empty state handling ---

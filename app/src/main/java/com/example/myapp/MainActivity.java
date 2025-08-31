@@ -15,6 +15,9 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.myapp.data.TrophyRepository;
+import com.example.myapp.R;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -37,8 +40,18 @@ public class MainActivity extends AppCompatActivity {
 //            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
 //            startActivity(intent);
 //        });
+
+
     }
-    
+
+    /*~~~~~~~~~~~~~~~~~~~~~~~~~TROPHY~~~~~~~~~~~~~~~~~~~~~~~~~*/
+    @Override
+    protected void onResume() {
+        super.onResume();
+        TrophyRepository.getInstance(this).onAppOpenedToday(); // NEW
+    }
+	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
     private void setupNavigation() {
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment);
@@ -47,6 +60,37 @@ public class MainActivity extends AppCompatActivity {
         
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
+
+        // --- TROPHIES: record "Explorer" progress on destination changes ---
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            String tabKey = null;
+
+            // Map your destination IDs to the repository keys
+            int id = destination.getId();
+            if (id == R.id.navigation_home)          tabKey = "home";
+            else if (id == R.id.navigation_workouts)  tabKey = "workouts";
+            else if (id == R.id.navigation_nutrition) tabKey = "nutrition";
+            else if (id == R.id.navigation_timer)     tabKey = "timer";
+            else if (id == R.id.navigation_achievements) tabKey = "achievements";
+
+            if (tabKey != null) {
+                TrophyRepository.getInstance(this).onTabVisited(tabKey);
+            }
+        });
+
+        // (Optional) immediately record the first visible tab after setup:
+        if (navController.getCurrentDestination() != null) {
+            int id = navController.getCurrentDestination().getId();
+            String firstTabKey = null;
+            if (id == R.id.navigation_home)          firstTabKey = "home";
+            else if (id == R.id.navigation_workouts)  firstTabKey = "workouts";
+            else if (id == R.id.navigation_nutrition) firstTabKey = "nutrition";
+            else if (id == R.id.navigation_timer)     firstTabKey = "timer";
+            else if (id == R.id.navigation_achievements) firstTabKey = "achievements";
+            if (firstTabKey != null) {
+                TrophyRepository.getInstance(this).onTabVisited(firstTabKey);
+            }
+        }
     }
     
     private void setupAdvancedStatusBar() {

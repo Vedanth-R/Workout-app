@@ -27,6 +27,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import com.example.myapp.data.TrophyRepository;
+
 /**
  * Train (Timer) screen.
  * Features: Start/Pause/Resume/End, Complete Set, Rest Timer (+15/Skip), One-time daily Log Workout, End Summary.
@@ -204,6 +206,12 @@ public class TimerFragment extends Fragment {
         btnStartRest.setStrokeColor(ColorStateList.valueOf(getResources().getColor(R.color.teal_200)));
 
         btnStart.setBackgroundColor(getResources().getColor(R.color.hintColor));
+
+        /*~~~~~~~~~~~~~~~~~~~~~~~~~~~TROPHY~~~~~~~~~~~~~~~~~~~~~~~~~*/
+        // in your Start button click:
+        TrophyRepository.getInstance(requireContext()).onTimerStarted();
+        /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
     }
 
     private void onPauseClicked() {
