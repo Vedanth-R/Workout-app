@@ -52,8 +52,8 @@ public class HomeFragment extends Fragment {
     private TextView tvGreeting, tvDate;
     private LineChart chartProgress;
     private Spinner spinnerMetric;
-    private TextView tvWorkoutCount, tvCaloriesToday, tvStreakCount, tvViewAllPR;
-    private RecyclerView rvPersonalRecords;
+    private TextView tvWorkoutCount, tvCaloriesToday, tvStreakCount/*, tvViewAllPR*/;
+//    private RecyclerView rvPersonalRecords;
     private MaterialButton btnQuickWorkout, btnLogMeal;
     private FloatingActionButton fabSettings, fabChat;
     
@@ -92,8 +92,8 @@ public class HomeFragment extends Fragment {
         tvWorkoutCount = view.findViewById(R.id.tvWorkoutCount);
         tvCaloriesToday = view.findViewById(R.id.tvCaloriesToday);
         tvStreakCount = view.findViewById(R.id.tvStreakCount);
-        tvViewAllPR = view.findViewById(R.id.tvViewAllPR);
-        rvPersonalRecords = view.findViewById(R.id.rvPersonalRecords);
+//        tvViewAllPR = view.findViewById(R.id.tvViewAllPR);
+//        rvPersonalRecords = view.findViewById(R.id.rvPersonalRecords);
         btnQuickWorkout = view.findViewById(R.id.btnQuickWorkout);
         btnLogMeal = view.findViewById(R.id.btnLogMeal);
 
@@ -128,9 +128,9 @@ public class HomeFragment extends Fragment {
 
 
         // Personal Records "View All"
-        tvViewAllPR.setOnClickListener(v -> {
-            // TODO: open PR activity
-        });
+//        tvViewAllPR.setOnClickListener(v -> {
+//            // TODO: open PR activity
+//        });
 
         // Spinner listener stub
     }
