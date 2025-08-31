@@ -3,6 +3,7 @@ package com.example.myapp;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -123,6 +124,11 @@ public class TimerFragment extends Fragment {
         btnLogWorkoutOneTime = root.findViewById(R.id.btnLogWorkoutOneTime);
     }
 
+    // ------------------ Color Scheme ------------------
+    private void setColorScheme() {
+
+    }
+
     // ------------------ Event wiring ------------------
 
     private void wireEvents() {
@@ -183,6 +189,21 @@ public class TimerFragment extends Fragment {
         btnEnd.setEnabled(true);
         btnCompleteSet.setEnabled(true);
         btnStartRest.setEnabled(true);
+
+        // Enable colors
+        btnPauseResume.setTextColor(getResources().getColor(R.color.vibrantAccent));
+        btnPauseResume.setStrokeColor(ColorStateList.valueOf(getResources().getColor(R.color.vibrantAccent)));
+
+        btnEnd.setTextColor(getResources().getColor(R.color.vibrantAccent));
+        btnEnd.setStrokeColor(ColorStateList.valueOf(getResources().getColor(R.color.vibrantAccent)));
+
+        btnCompleteSet.setTextColor(getResources().getColor(R.color.white));
+        btnCompleteSet.setBackgroundColor(getResources().getColor(R.color.teal_200));
+
+        btnStartRest.setTextColor(getResources().getColor(R.color.teal_200));
+        btnStartRest.setStrokeColor(ColorStateList.valueOf(getResources().getColor(R.color.teal_200)));
+
+        btnStart.setBackgroundColor(getResources().getColor(R.color.hintColor));
     }
 
     private void onPauseClicked() {
@@ -221,6 +242,20 @@ public class TimerFragment extends Fragment {
         btnEnd.setEnabled(false);
         btnCompleteSet.setEnabled(false);
         btnStartRest.setEnabled(false);
+
+        btnPauseResume.setTextColor(getResources().getColor(R.color.hintColor));
+        btnPauseResume.setStrokeColor(ColorStateList.valueOf(getResources().getColor(R.color.hintColor)));
+
+        btnEnd.setTextColor(getResources().getColor(R.color.hintColor));
+        btnEnd.setStrokeColor(ColorStateList.valueOf(getResources().getColor(R.color.hintColor)));
+
+        btnCompleteSet.setTextColor(getResources().getColor(R.color.white));
+        btnCompleteSet.setBackgroundColor(getResources().getColor(R.color.hintColor));
+
+        btnStartRest.setTextColor(getResources().getColor(R.color.hintColor));
+        btnStartRest.setStrokeColor(ColorStateList.valueOf(getResources().getColor(R.color.hintColor)));
+
+        btnStart.setBackgroundColor(getResources().getColor(R.color.vibrantAccent));
     }
 
     private void resetUI() {

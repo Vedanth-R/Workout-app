@@ -6,7 +6,8 @@
     android:id="@+id/trainRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
+    android:padding="20dp"
+    android:background="@color/backgroundDark"
     tools:context=".TimerFragment">
 
     <!-- Header -->
@@ -15,75 +16,98 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingTop="8dp"
-        android:gravity="center"
+        android:paddingTop="20dp"
+        android:paddingBottom="8dp"
+        android:gravity="center_vertical"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/tvHeaderTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Train"
-            android:padding="16dp"
-            android:layout_weight = "1"
-            android:layout_marginEnd="108dp"
-            android:textAppearance="?attr/textAppearanceHeadlineMedium"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btnLogWorkoutOneTime"
-            app:layout_goneMarginEnd="12dp"/>
+            android:layout_weight="1"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:fontFamily="sans-serif-medium" />
 
         <!-- One-time daily log button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogWorkoutOneTime"
-            style="?attr/materialButtonOutlinedStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:text="@string/log_workout"
             android:contentDescription="Log workout for streak"
-            android:layout_weight = "0.25"
-            app:layout_constraintTop_toTopOf="@id/tvHeaderTitle"
-            app:layout_constraintBottom_toBottomOf="@id/tvHeaderTitle"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:textColor="@color/vibrantAccent"
+            app:cornerRadius="12dp"
+            app:strokeColor="@color/vibrantAccent"
+            app:strokeWidth="2dp"
+            style="?attr/materialButtonOutlinedStyle"
             tools:enabled="true" />
 
     </LinearLayout>
-    <!-- Big workout timer -->
-    <TextView
-        android:id="@+id/tvWorkoutTimer"
+
+    <!-- Timer Display Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/timerCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="00:00:00"
-        android:textSize="48sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:fontFamily="monospace"
-        android:paddingTop="20dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@color/backgroundLight"
+        app:strokeWidth="0dp"
+        android:layout_marginTop="32dp"
         app:layout_constraintTop_toBottomOf="@id/llHeader"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Sets completed counter -->
-    <TextView
-        android:id="@+id/tvSetsLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sets"
-        android:textSize="14sp"
-        app:layout_constraintTop_toBottomOf="@id/tvWorkoutTimer"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="12dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="32dp"
+            android:gravity="center">
 
-    <TextView
-        android:id="@+id/tvSetsCount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        app:layout_constraintBaseline_toBaselineOf="@id/tvSetsLabel"
-        app:layout_constraintStart_toEndOf="@id/tvSetsLabel"
-        android:layout_marginStart="8dp"/>
+            <!-- Big workout timer -->
+            <TextView
+                android:id="@+id/tvWorkoutTimer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:00:00"
+                android:textSize="56sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:fontFamily="monospace" />
+
+            <!-- Sets completed counter -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:id="@+id/tvSetsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sets"
+                    android:textSize="16sp"
+                    android:textColor="@color/hintColor" />
+
+                <TextView
+                    android:id="@+id/tvSetsCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    android:textColor="@color/vibrantAccent"
+                    android:layout_marginStart="12dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <!-- Primary controls row -->
     <LinearLayout
@@ -92,17 +116,21 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:paddingTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/tvSetsLabel"
+        android:layout_marginTop="32dp"
+        app:layout_constraintTop_toBottomOf="@id/timerCard"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnStart"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_weight="1"
             android:text="Start"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/vibrantAccent"
+            app:cornerRadius="16dp"
             android:contentDescription="Start workout"/>
 
         <Space
@@ -111,12 +139,17 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnPauseResume"
-            style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_weight="1"
             android:text="Pause"
+            android:textSize="16sp"
+            android:textColor="@color/hintColor"
             android:enabled="false"
+            app:cornerRadius="16dp"
+            app:strokeColor="@color/hintColor"
+            app:strokeWidth="2dp"
+            style="?attr/materialButtonOutlinedStyle"
             android:contentDescription="Pause or resume workout"/>
 
         <Space
@@ -125,12 +158,17 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnEnd"
-            style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_weight="1"
             android:text="End"
+            android:textSize="16sp"
+            android:textColor="@color/hintColor"
             android:enabled="false"
+            app:cornerRadius="16dp"
+            app:strokeColor="@color/hintColor"
+            app:strokeWidth="2dp"
+            style="?attr/materialButtonOutlinedStyle"
             android:contentDescription="End workout"/>
     </LinearLayout>
 
@@ -141,7 +179,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:paddingTop="12dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/controlsRow"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -149,10 +187,14 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCompleteSet"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:layout_weight="1"
             android:text="Complete Set"
+            android:textSize="15sp"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/hintColor"
             android:enabled="false"
+            app:cornerRadius="14dp"
             android:contentDescription="Mark set complete and start rest"/>
 
         <Space
@@ -161,12 +203,17 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnStartRest"
-            style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:layout_weight="1"
             android:text="Rest"
+            android:textSize="15sp"
+            android:textColor="@color/hintColor"
             android:enabled="false"
+            app:cornerRadius="14dp"
+            app:strokeColor="@color/hintColor"
+            app:strokeWidth="2dp"
+            style="?attr/materialButtonOutlinedStyle"
             android:contentDescription="Start rest timer"/>
     </LinearLayout>
 
@@ -176,18 +223,21 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:cardCornerRadius="16dp"
+        app:cardCornerRadius="20dp"
         app:cardElevation="0dp"
+        app:cardBackgroundColor="@color/backgroundLight"
+        app:strokeWidth="0dp"
         app:layout_constraintTop_toBottomOf="@id/actionsRow"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="24dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:orientation="vertical">
+            android:padding="24dp"
+            android:orientation="vertical"
+            android:gravity="center">
 
             <TextView
                 android:id="@+id/tvRestLabel"
@@ -195,32 +245,37 @@
                 android:layout_height="wrap_content"
                 android:text="Rest"
                 android:textStyle="bold"
-                android:textSize="16sp"/>
+                android:textSize="18sp"
+                android:textColor="@color/white"/>
 
             <TextView
                 android:id="@+id/tvRestTimer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="00:30"
-                android:textSize="36sp"
+                android:textSize="48sp"
                 android:textStyle="bold"
                 android:fontFamily="monospace"
-                android:gravity="center_horizontal"
-                android:layout_marginTop="4dp" />
+                android:textColor="@color/teal_200"
+                android:gravity="center"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="16dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginTop="8dp">
+                android:gravity="center">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRestAdd15"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="+15s" />
+                    android:layout_height="52dp"
+                    android:text="+15s"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/teal_200"
+                    app:cornerRadius="14dp" />
 
                 <Space
                     android:layout_width="12dp"
@@ -228,11 +283,15 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRestSkip"
-                    style="?attr/materialButtonOutlinedStyle"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Skip" />
+                    android:layout_height="52dp"
+                    android:text="Skip"
+                    android:textColor="@color/teal_200"
+                    app:cornerRadius="14dp"
+                    app:strokeColor="@color/teal_200"
+                    app:strokeWidth="2dp"
+                    style="?attr/materialButtonOutlinedStyle" />
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
@@ -243,18 +302,20 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:cardCornerRadius="16dp"
+        app:cardCornerRadius="20dp"
         app:cardElevation="0dp"
+        app:cardBackgroundColor="@color/backgroundLight"
+        app:strokeWidth="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         app:layout_constraintTop_toBottomOf="@id/restPanel">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
+            android:padding="24dp"
             android:orientation="vertical">
 
             <TextView
@@ -263,28 +324,45 @@
                 android:layout_height="wrap_content"
                 android:text="Workout Summary"
                 android:textStyle="bold"
-                android:textSize="16sp"/>
+                android:textSize="20sp"
+                android:textColor="@color/white"
+                android:layout_marginBottom="16dp"/>
 
-            <TextView
-                android:id="@+id/tvSummaryTime"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Time: 00:00:00"
-                android:layout_marginTop="6dp"/>
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
 
-            <TextView
-                android:id="@+id/tvSummarySets"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Sets: 0" />
+                <TextView
+                    android:id="@+id/tvSummaryTime"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Time: 00:00:00"
+                    android:textSize="16sp"
+                    android:textColor="@color/textColor"/>
+
+                <TextView
+                    android:id="@+id/tvSummarySets"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Sets: 0"
+                    android:textSize="16sp"
+                    android:textColor="@color/textColor"
+                    android:gravity="end"/>
+            </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSummaryDone"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:text="Save &amp; Exit"
-                android:layout_marginTop="12dp"/>
+                android:textColor="@color/white"
+                android:backgroundTint="@color/vibrantAccent"
+                app:cornerRadius="14dp"
+                android:layout_marginTop="16dp"/>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,23 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Base colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Brand colors -->
+    <color name="vibrantAccent">#ff80a8</color> <!-- Primary pink accent -->
+    <color name="vibrantAccentDark">#cc6686</color> <!-- Darker variant for states -->
+    <color name="teal_200">#03DAC5</color> <!-- Secondary accent -->
+
+    <!-- Background colors -->
+    <color name="backgroundDark">#0D0D0D</color> <!-- Main dark background -->
+    <color name="backgroundLight">#1A1A1A</color> <!-- Card/elevated surface background -->
+    <color name="backgroundLighter">#262626</color> <!-- Even lighter surface for nested cards -->
+
+    <!-- Text colors -->
+    <color name="textColor">#FFFFFF</color> <!-- Primary text on dark -->
+    <color name="textColorSecondary">#B3B3B3</color> <!-- Secondary text -->
+    <color name="hintColor">#808080</color> <!-- Hint and disabled text -->
+
+    <!-- State colors -->
+    <color name="errorColor">#CF6679</color>
+    <color name="successColor">#4CAF50</color>
+    <color name="warningColor">#FFC107</color>
+
+    <!-- Legacy colors (kept for compatibility) -->
     <color name="purple">#cbc9d1</color>
     <color name="lightblue">#A7B8AE</color>
-        <!-- Background colors -->
-        <color name="backgroundDark">#121212</color> <!-- Dark background for the layout -->
-        <color name="backgroundLight">#1f1f1f</color> <!-- Slightly lighter for contrast -->
-
-        <!-- Text colors -->
-        <color name="textColor">#E0E0E0</color> <!-- Light gray for text on dark background -->
-        <color name="hintColor">#A8A8A8</color> <!-- Slightly lighter gray for hint text -->
-
-        <!-- Vibrant accent color -->
-        <color name="vibrantAccent">#ff80a8
-
-        </color>
-
-    <color name="teal_200">#03DAC5</color><!-- Vibrant pink accent color for buttons, highlights -->
-
-
 </resources>

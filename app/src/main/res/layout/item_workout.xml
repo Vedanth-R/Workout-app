@@ -23,7 +23,7 @@
             android:layout_height="48dp"
             android:layout_marginEnd="16dp"
             app:cardCornerRadius="24dp"
-            app:cardBackgroundColor="?attr/colorPrimaryContainer">
+            app:cardBackgroundColor="@color/vibrantAccent">
 
             <TextView
                 android:id="@+id/tvWorkoutIcon"

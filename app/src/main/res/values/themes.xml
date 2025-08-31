@@ -1,15 +1,36 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.MyApp" parent="Theme.Material3.Dark.NoActionBar">
-        <!-- Customize your light theme here -->
-<!--        <item name="colorPrimary">@color/lightblue</item>-->
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@color/vibrantAccent</item>
+        <item name="colorPrimaryVariant">@color/vibrantAccentDark</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_200</item>
+        <item name="colorOnSecondary">@color/black</item>
+
+        <!-- Background colors -->
+        <item name="android:colorBackground">@color/backgroundDark</item>
+        <item name="colorSurface">@color/backgroundLight</item>
+        <item name="colorOnSurface">@color/textColor</item>
+
+        <!-- Status bar -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowLightNavigationBar">true</item>
+
+        <!-- Navigation bar -->
+        <item name="android:navigationBarColor">@color/backgroundDark</item>
+        <item name="android:windowLightNavigationBar">false</item>
         <item name="android:windowTranslucentNavigation">false</item>
+
+        <!-- Text appearances -->
+        <item name="android:textColorPrimary">@color/textColor</item>
+        <item name="android:textColorSecondary">@color/hintColor</item>
+        <item name="android:textColorHint">@color/hintColor</item>
     </style>
 
     <style name="Theme.MyApp" parent="Base.Theme.MyApp" />
@@ -17,12 +38,26 @@
     <!-- Bottom Navigation Styles -->
     <style name="BottomNavigationTextActive" parent="TextAppearance.Material3.LabelSmall">
         <item name="android:textSize">12sp</item>
-        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textColor">@color/vibrantAccent</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="BottomNavigationTextInactive" parent="TextAppearance.Material3.LabelSmall">
         <item name="android:textSize">12sp</item>
-        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textColor">@color/hintColor</item>
+    </style>
+
+    <!-- Custom Button Styles -->
+    <style name="Widget.App.Button.Primary" parent="Widget.Material3.Button">
+        <item name="android:textColor">@color/white</item>
+        <item name="backgroundTint">@color/vibrantAccent</item>
+        <item name="cornerRadius">16dp</item>
+    </style>
+
+    <style name="Widget.App.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textColor">@color/vibrantAccent</item>
+        <item name="strokeColor">@color/vibrantAccent</item>
+        <item name="strokeWidth">2dp</item>
+        <item name="cornerRadius">16dp</item>
     </style>
 </resources>
