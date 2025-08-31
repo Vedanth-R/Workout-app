@@ -26,6 +26,7 @@ import java.util.List;
 // NEW
 import com.example.myapp.data.TrophyRepository;
 import com.example.myapp.model.Trophy;
+import com.example.myapp.trophies.TrophiesAdapter;
 import com.example.myapp.R;
 
 /**
@@ -130,13 +131,10 @@ public class AchievementsFragment extends Fragment {
 
     private void setupTrophiesList() {
         rvTrophies.setLayoutManager(
-                new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        	new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         );
-
-        // NEW: fetch all trophies from repository
         List<Trophy> all = TrophyRepository.getInstance(requireContext()).getAll();
-
-        trophiesAdapter = new TrophiesAdapter(all); // CHANGED: pass model.Trophy
+        trophiesAdapter = new TrophiesAdapter(new ArrayList<>(all));
         rvTrophies.setAdapter(trophiesAdapter);
     }
 
@@ -150,136 +148,46 @@ public class AchievementsFragment extends Fragment {
         });
     }
 
-    // ----- Sample data for now -----
-    /*private List<Trophy> getSampleTrophiesLimited(int limit) {
-        List<Trophy> all = new ArrayList<>();
-        all.add(new Trophy("First Workout", "Complete your first workout", true));
-        all.add(new Trophy("10-Day Streak", "Work out 10 days in a row", false));
-        all.add(new Trophy("Bench Milestone", "Hit 200 lb bench press", true));
-        all.add(new Trophy("Consistency", "Log workouts 5 days this week", false));
-        all.add(new Trophy("Early Bird", "Start a workout before 7am", false));
+    private final TrophyRepository.TrophyUnlockListener unlockListener = unlockedId -> {
+        if (!isAdded()) return; // fragment not visible
 
-        if (limit <= 0 || limit >= all.size()) return all.subList(0, Math.min(3, all.size()));
-        return all.subList(0, Math.min(limit, all.size()));
-    }*/
+        requireActivity().runOnUiThread(() -> {
+            // 1) refresh data from repo
+            List<Trophy> fresh = TrophyRepository.getInstance(requireContext()).getAll();
+            trophiesAdapter.setItems(fresh);
 
-    /*// ----- Simple model -----
-    static class Trophy {
-        final String title;
-        final String description;
-        final boolean unlocked;
-        int current = 5;
-        int total = 10;
-
-        Trophy(String title, String description, boolean unlocked) {
-            this.title = title;
-            this.description = description;
-            this.unlocked = unlocked;
-        }
-    }*/
-
-
-    // ----- Trophy Repository -----
-    /*private List<Trophy> getAllTrophies() {
-        List<Trophy> all = new ArrayList<>();
-
-        // Simple (binary) trophies
-        all.add(new Trophy("First Workout", "Complete your first workout", Prefs.getBool(requireContext(), "trophy_first_workout", false)));
-        all.add(new Trophy("Explorer", "Visit all 5 tabs at least once", Prefs.getBool(requireContext(), "trophy_explorer", false)));
-        all.add(new Trophy("Planner", "Create your first routine", Prefs.getBool(requireContext(), "trophy_planner", false)));
-
-        // Incremental trophies (set current/total)
-        Trophy habit = new Trophy("Habit Builder", "Open the app on 10 distinct days", Prefs.getBool(requireContext(), "trophy_habit_builder_done", false));
-        habit.total = 10;
-        habit.current = Prefs.getInt(requireContext(), "trophy_habit_builder_current", 0);
-        all.add(habit);
-
-        Trophy timer5 = new Trophy("Timer Time", "Run the timer 5 times", Prefs.getBool(requireContext(), "trophy_timer5_done", false));
-        timer5.total = 5;
-        timer5.current = Prefs.getInt(requireContext(), "trophy_timer5_current", 0);
-        all.add(timer5);
-
-        // …add more here…
-
-        return all;
-    }*/
-
-
-
-    // ----- Minimal Adapter (uses a simple built-in layout as a placeholder) -----
-    private static class TrophiesAdapter extends RecyclerView.Adapter<TrophiesAdapter.Holder> {
-
-        private final List<Trophy> items;
-
-        TrophiesAdapter(List<Trophy> items) {
-            this.items = items;
-        }
-
-        @NonNull @Override
-        public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_trophy, parent, false);
-            return new Holder(v);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull Holder h, int position) {
-            Trophy t = items.get(position);
-            h.title.setText(t.getTitle());
-            h.desc.setText(t.getDescription());
-
-            if (t.isUnlocked()) {
-                h.status.setText("UNLOCKED");
-
-                // icon
-                h.icon.setImageResource(R.drawable.ic_unlock);
-//                h.icon.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.hintColor)));
-
-                h.lock.setVisibility(View.GONE);
-                h.progressContainer.setVisibility(View.GONE);
-            } else {
-                h.status.setText("LOCKED");
-
-                // icon
-                h.icon.setImageResource(R.drawable.ic_lock);
-//                h.icon.setImageTintList(AppCompatResources.getColorStateList(
-//                        h.itemView.getContext(), R.color.hintColor
-//                ));
-
-                h.lock.setVisibility(View.VISIBLE);
-
-                if (t.isIncremental()) {
-                    h.progressContainer.setVisibility(View.VISIBLE);
-                    int pct = (int) (100f * t.getCurrent() / Math.max(1, t.getTotal()));
-                    h.progress.setProgress(pct);
-                    h.progressText.setText(t.getCurrent() + " / " + t.getTotal());
-                } else {
-                    h.progressContainer.setVisibility(View.GONE);
-                }
+            if (tvTrophiesUnlockedValue != null) {
+                int unlocked = TrophyRepository.getInstance(requireContext()).getUnlockedCount();
+                tvTrophiesUnlockedValue.setText(String.valueOf(unlocked));
             }
-        }
 
-        @Override
-        public int getItemCount() { return items.size(); }
 
-        static class Holder extends RecyclerView.ViewHolder {
-            ImageView icon, lock;
-            TextView title, desc, status, progressText;
-            ProgressBar progress;
-            View progressContainer;
+            // 2) find index and scroll, then animate after scroll settles
+            int idx = trophiesAdapter.indexOf(unlockedId);
+            if (idx >= 0) {
+                trophiesAdapter.setRecentlyUnlocked(unlockedId);
+                rvTrophies.smoothScrollToPosition(idx);
 
-            Holder(@NonNull View itemView) {
-                super(itemView);
-                icon = itemView.findViewById(R.id.ivTrophyIcon);
-                lock = itemView.findViewById(R.id.ivLockOverlay);
-                title = itemView.findViewById(R.id.tvTrophyTitle);
-                desc = itemView.findViewById(R.id.tvTrophyDesc);
-                status = itemView.findViewById(R.id.tvTrophyStatus);
-                progress = itemView.findViewById(R.id.pbTrophyProgress);
-                progressText = itemView.findViewById(R.id.tvTrophyProgressText);
-                progressContainer = itemView.findViewById(R.id.layoutProgress);
+                // small delay so the row is laid out before we rebind/animate
+                rvTrophies.postDelayed(() -> {
+                    trophiesAdapter.notifyItemChanged(idx);
+                }, 150);
             }
-        }
+        });
+    };
+
+    @Override public void onStart() {
+        super.onStart();
+        TrophyRepository.getInstance(requireContext()).addListener(unlockListener);
     }
+
+    @Override public void onStop() {
+        TrophyRepository.getInstance(requireContext()).removeListener(unlockListener);
+        super.onStop();
+    }
+
+
+
+
 
 }

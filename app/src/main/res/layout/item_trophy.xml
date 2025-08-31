@@ -101,7 +101,7 @@
         </LinearLayout>
 
         <!-- Subtle lock overlay icon (optional, starts GONE) -->
-        <ImageView
+        <!--<ImageView
             android:id="@+id/ivLockOverlay"
             android:layout_width="18dp"
             android:layout_height="18dp"
@@ -109,7 +109,7 @@
             android:src="@android:drawable/ic_lock_lock"
             android:visibility="gone"
             android:contentDescription="@string/locked"
-            app:tint="?attr/colorOnSurfaceVariant" />
+            app:tint="?attr/colorOnSurfaceVariant" />-->
 
     </LinearLayout>
 

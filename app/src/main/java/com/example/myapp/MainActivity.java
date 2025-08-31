@@ -17,6 +17,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.myapp.data.TrophyRepository;
 import com.example.myapp.R;
+import com.google.android.material.snackbar.Snackbar;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -113,5 +114,38 @@ public class MainActivity extends AppCompatActivity {
                 );
             }
         }
+    }
+
+    // TROPHY TOAST
+    private final TrophyRepository.TrophyUnlockListener activityUnlockListener = trophyId -> {
+        // Ensure UI thread
+        runOnUiThread(() -> {
+            String name = displayNameFor(trophyId);
+            BottomNavigationView bnv = findViewById(R.id.bottom_navigation);
+            Snackbar sb = Snackbar.make(bnv, "Unlocked: " + name + " 🎉", Snackbar.LENGTH_SHORT);
+            sb.setAnchorView(bnv); // <- keeps it above bottom nav
+            sb.show();
+
+            // subtle success haptic
+            bnv.performHapticFeedback(android.view.HapticFeedbackConstants.CONFIRM);
+        });
+    };
+
+    private String displayNameFor(String id) {
+        if (TrophyRepository.ID_EXPLORER.equals(id)) return "Explorer";
+        if (TrophyRepository.ID_FIRST_STEPS.equals(id)) return "First Steps";
+        if (TrophyRepository.ID_PLANNER.equals(id)) return "Planner";
+        if (TrophyRepository.ID_TIMER_ROOKIE.equals(id)) return "Timer Rookie";
+        return "Achievement";
+    }
+
+    @Override protected void onStart() {
+        super.onStart();
+        TrophyRepository.getInstance(this).addListener(activityUnlockListener);
+    }
+
+    @Override protected void onStop() {
+        TrophyRepository.getInstance(this).removeListener(activityUnlockListener);
+        super.onStop();
     }
 }

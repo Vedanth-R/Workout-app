@@ -57,6 +57,20 @@ public class TrophyRepository {
         return INSTANCE;
     }
 
+    // TROPHY TOAST
+    // at top of class
+    public interface TrophyUnlockListener { void onTrophyUnlocked(String trophyId); }
+
+    // fields
+    private final java.util.Set<TrophyUnlockListener> listeners = new java.util.concurrent.CopyOnWriteArraySet<>();
+
+    public void addListener(TrophyUnlockListener l) { listeners.add(l); }
+    public void removeListener(TrophyUnlockListener l) { listeners.remove(l); }
+
+    private void notifyUnlocked(String id) {
+        for (TrophyUnlockListener l : listeners) l.onTrophyUnlocked(id);
+    }
+
     // ---------- Public API ----------
 
     /** Returns all trophies with live progress from prefs. */
@@ -185,6 +199,7 @@ public class TrophyRepository {
             sp.edit()
                     .putBoolean(K_DONE_PREFIX + id, true)
                     .apply();
+            notifyUnlocked(id);
         }
     }
 }

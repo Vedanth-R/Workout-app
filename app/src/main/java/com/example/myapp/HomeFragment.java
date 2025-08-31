@@ -20,9 +20,13 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.myapp.data.TrophyRepository;
 import com.example.myapp.model.Food;
+import com.example.myapp.model.Trophy;
+import com.example.myapp.trophies.TrophiesAdapter;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -59,6 +63,9 @@ public class HomeFragment extends Fragment {
     
     private HomeViewModel homeViewModel;
 
+    private RecyclerView rvAchievementsPreview;
+    private TrophiesAdapter trophiesPreviewAdapter;
+
     public HomeFragment() {
         // Required empty constructor
     }
@@ -68,7 +75,13 @@ public class HomeFragment extends Fragment {
         super.onResume();
         loadCaloriesToday();
         loadWeeklyWorkouts();
+
+        if (trophiesPreviewAdapter != null) {
+            List<Trophy> fresh = TrophyRepository.getInstance(requireContext()).getAll();
+            trophiesPreviewAdapter.setItems(fresh);
+        }
     }
+
 
     @Nullable
     @Override
@@ -92,10 +105,12 @@ public class HomeFragment extends Fragment {
         tvWorkoutCount = view.findViewById(R.id.tvWorkoutCount);
         tvCaloriesToday = view.findViewById(R.id.tvCaloriesToday);
         tvStreakCount = view.findViewById(R.id.tvStreakCount);
-//        tvViewAllPR = view.findViewById(R.id.tvViewAllPR);
-//        rvPersonalRecords = view.findViewById(R.id.rvPersonalRecords);
         btnQuickWorkout = view.findViewById(R.id.btnQuickWorkout);
         btnLogMeal = view.findViewById(R.id.btnLogMeal);
+
+        rvAchievementsPreview = view.findViewById(R.id.rvAchievementsPreview);
+        setupHomeTrophiesList();
+
 
         // Optional: if you moved FABs into the fragment (else keep in MainActivity)
 //        fabSettings = getActivity().findViewById(R.id.fabSettings);
@@ -104,7 +119,7 @@ public class HomeFragment extends Fragment {
         observeViewModelData();
 
         // Setup chart
-        setupChartWithRealData();
+		setupChartWithRealData();
 		loadWeeklyWorkouts();
         loadCaloriesToday();
 
@@ -320,4 +335,53 @@ public class HomeFragment extends Fragment {
         for (Food f : foods) total += f.getCalories();
         return total;
     }
+
+    private void setupHomeTrophiesList() {
+        rvAchievementsPreview.setLayoutManager(
+                new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        );
+
+        List<Trophy> all = TrophyRepository.getInstance(requireContext()).getAll();
+        trophiesPreviewAdapter = new TrophiesAdapter(new ArrayList<>(all));
+        rvAchievementsPreview.setAdapter(trophiesPreviewAdapter);
+    }
+
+    // Listen for trophy unlocks and refresh/animate the Home preview list.
+    private final TrophyRepository.TrophyUnlockListener homeUnlockListener = unlockedId -> {
+        if (!isAdded()) return; // Fragment not attached/visible
+
+        requireActivity().runOnUiThread(() -> {
+            // 1) Pull fresh data
+            List<Trophy> fresh = TrophyRepository.getInstance(requireContext()).getAll();
+            trophiesPreviewAdapter.setItems(fresh);
+
+            // 2) Find the unlocked item
+            int idx = trophiesPreviewAdapter.indexOf(unlockedId);
+            if (idx >= 0) {
+                // 3) Mark it as recent so adapter shows Snackbar + pulse
+                trophiesPreviewAdapter.setRecentlyUnlocked(unlockedId);
+
+                // 4) Smooth scroll into view
+                rvAchievementsPreview.smoothScrollToPosition(idx);
+
+                // 5) Rebind after layout so the animation/snackbar runs on the visible cell
+                rvAchievementsPreview.postDelayed(() ->
+                        trophiesPreviewAdapter.notifyItemChanged(idx), 150);
+            }
+        });
+    };
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        TrophyRepository.getInstance(requireContext()).addListener(homeUnlockListener);
+    }
+
+    @Override
+    public void onStop() {
+        TrophyRepository.getInstance(requireContext()).removeListener(homeUnlockListener);
+        super.onStop();
+    }
+
+
 }

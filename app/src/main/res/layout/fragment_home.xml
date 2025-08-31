@@ -258,7 +258,7 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Achievements Preview Card -->
+        <!-- Achievements Preview Card (Home) -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -290,6 +290,7 @@
                         android:textStyle="bold"
                         android:textColor="@color/white" />
 
+                    <!-- Keep hidden for now -->
                     <TextView
                         android:id="@+id/tvViewAllAchievements"
                         android:layout_width="wrap_content"
@@ -304,20 +305,22 @@
                         android:visibility="gone"/>
                 </LinearLayout>
 
+                <!-- UPDATE: let item_trophy define its own height -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvAchievementsPreview"
                     android:layout_width="match_parent"
-                    android:layout_height="84dp"
+                    android:layout_height="wrap_content"
                     android:overScrollMode="never"
                     android:paddingStart="2dp"
                     android:paddingEnd="2dp"
                     android:clipToPadding="false"
                     tools:orientation="horizontal"
-                    tools:listitem="@layout/item_badge_unlocked"
+                    tools:listitem="@layout/item_trophy"
                     tools:itemCount="4" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+
 
         <!-- Personal Records Section -->
         <!--<com.google.android.material.card.MaterialCardView
