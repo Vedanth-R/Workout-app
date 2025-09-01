@@ -1,6 +1,5 @@
 package com.example.myapp;
 
-import static com.example.myapp.Prefs.FILE;
 import static com.example.myapp.Prefs.KEY_TOTAL_WORKOUTS;
 
 import android.annotation.SuppressLint;
@@ -362,7 +361,7 @@ public class TimerFragment extends Fragment {
     }
 
     private void markLoggedToday() {
-        SharedPreferences sp = requireContext().getSharedPreferences(FILE, Context.MODE_PRIVATE);
+        SharedPreferences sp = requireContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
 
         // Only increment if not already logged today
         if (!sp.getBoolean(KEY_LOG_PREFIX + todayKey(), false)) {

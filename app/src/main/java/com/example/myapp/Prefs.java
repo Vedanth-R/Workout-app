@@ -1,5 +1,6 @@
 package com.example.myapp;
 
+
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -9,7 +10,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public final class Prefs {
-    static final String FILE = "app_prefs";
+
 
     // Keys
     static final String KEY_TOTAL_WORKOUTS = "total_workouts";
@@ -26,7 +27,7 @@ public final class Prefs {
     private Prefs() {}
 
     private static SharedPreferences sp(Context ctx) {
-        return ctx.getSharedPreferences(FILE, Context.MODE_PRIVATE);
+        return ctx.getSharedPreferences("train_prefs", Context.MODE_PRIVATE);
     }
 
     /* -------------------- Total Workouts -------------------- */
