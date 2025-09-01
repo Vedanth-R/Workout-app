@@ -158,8 +158,7 @@ public class TimerFragment extends Fragment {
         btnSummaryDone.setOnClickListener(v -> {
             // TODO: Persist workout session details to your data layer if desired
             // For now, just hide
-
-            Prefs.incrementTotalWorkouts(requireContext());          // +1 lifetime
+            // +1 lifetime
             Prefs.incrementWorkoutsThisWeek(requireContext());       // +1 this week (auto-resets on week boundary)
 
             // NEW: Weekly Streak and Active Days
@@ -368,11 +367,17 @@ public class TimerFragment extends Fragment {
             int total = sp.getInt(KEY_TOTAL_WORKOUTS, 0);
             sp.edit()
                     .putBoolean(KEY_LOG_PREFIX + todayKey(), true)  // mark today
-                    .putInt(KEY_TOTAL_WORKOUTS, total + 1)          // increment total
+                    .putInt(KEY_TOTAL_WORKOUTS, total + 1)          // increment total workouts
                     .apply();
+
+            // Update other stats
+            Prefs.incrementWorkoutsThisWeek(requireContext());
+            Prefs.updateWeeklyStreakOnWorkout(requireContext());
+            Prefs.markActiveDayThisMonth(requireContext());
         }
 
         btnLogWorkoutOneTime.setText("Logged");
+        btnLogWorkoutOneTime.setEnabled(false);
     }
 
     private String todayKey() {
