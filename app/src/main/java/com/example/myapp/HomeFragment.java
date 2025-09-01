@@ -264,6 +264,7 @@ public class HomeFragment extends Fragment {
         YAxis leftAxis = chartProgress.getAxisLeft();
         leftAxis.setTextColor(labelColor);
         leftAxis.setDrawGridLines(false);
+        leftAxis.setAxisMinimum(0f);
 
         YAxis rightAxis = chartProgress.getAxisRight();
         rightAxis.setEnabled(false);
