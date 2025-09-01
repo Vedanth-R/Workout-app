@@ -1,5 +1,8 @@
 package com.example.myapp;
 
+import static com.example.myapp.Prefs.FILE;
+import static com.example.myapp.Prefs.KEY_TOTAL_WORKOUTS;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -359,8 +362,17 @@ public class TimerFragment extends Fragment {
     }
 
     private void markLoggedToday() {
-        SharedPreferences sp = requireContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-        sp.edit().putBoolean(KEY_LOG_PREFIX + todayKey(), true).apply();
+        SharedPreferences sp = requireContext().getSharedPreferences(FILE, Context.MODE_PRIVATE);
+
+        // Only increment if not already logged today
+        if (!sp.getBoolean(KEY_LOG_PREFIX + todayKey(), false)) {
+            int total = sp.getInt(KEY_TOTAL_WORKOUTS, 0);
+            sp.edit()
+                    .putBoolean(KEY_LOG_PREFIX + todayKey(), true)  // mark today
+                    .putInt(KEY_TOTAL_WORKOUTS, total + 1)          // increment total
+                    .apply();
+        }
+
         btnLogWorkoutOneTime.setText("Logged");
     }
 

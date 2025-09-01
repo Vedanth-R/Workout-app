@@ -9,10 +9,10 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public final class Prefs {
-    private static final String FILE = "app_prefs";
+    static final String FILE = "app_prefs";
 
     // Keys
-    private static final String KEY_TOTAL_WORKOUTS = "total_workouts";
+    static final String KEY_TOTAL_WORKOUTS = "total_workouts";
     private static final String KEY_WORKOUTS_THIS_WEEK = "workouts_this_week";
     private static final String KEY_WEEK_START_YMD = "week_start_ymd"; // "yyyyMMdd" for the start of this week (Sunday)
 

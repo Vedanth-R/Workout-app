@@ -186,6 +186,12 @@ public class AchievementsFragment extends Fragment {
         super.onStop();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        setupOverview(); // refresh stats when returning
+    }
+
 
 
 
