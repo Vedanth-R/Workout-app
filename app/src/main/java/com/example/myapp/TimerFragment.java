@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
@@ -265,6 +266,20 @@ public class TimerFragment extends Fragment {
         btnStartRest.setStrokeColor(ColorStateList.valueOf(getResources().getColor(R.color.hintColor)));
 
         btnStart.setBackgroundColor(getResources().getColor(R.color.vibrantAccent));
+
+        // in TimerFragment.java when ending the workout
+        ViewGroup root = requireView().findViewById(R.id.trainRoot);
+        MaterialCardView summary = requireView().findViewById(R.id.summaryPanel);
+
+        androidx.transition.TransitionManager.beginDelayedTransition(root,
+                new androidx.transition.AutoTransition());
+
+        summary.setVisibility(View.VISIBLE);
+
+		// Optionally scroll to it
+        NestedScrollView scroll = requireView().findViewById(R.id.trainScroll);
+        scroll.post(() -> scroll.smoothScrollTo(0, summary.getTop()));
+
     }
 
     private void resetUI() {
