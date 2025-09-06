@@ -219,7 +219,7 @@ public class HomeFragment extends Fragment {
             entries.add(new Entry(i, last7Days.get(last7Days.size() - 1 - i)));
         }
 
-        int labelColor = Color.BLACK; // default for light mode
+        /*int labelColor = Color.BLACK; // default for light mode
         int lineColor = Color.BLACK;
         int circleColor = Color.BLACK;
 
@@ -229,7 +229,11 @@ public class HomeFragment extends Fragment {
             labelColor = Color.WHITE;
             lineColor = Color.WHITE;
             circleColor = Color.WHITE;
-        }
+        }*/
+
+        int labelColor = Color.WHITE; // use dark mode colors only
+            int lineColor = Color.WHITE;
+        int circleColor = Color.WHITE;
 
         // Line dataset
         LineDataSet dataSet = new LineDataSet(entries, ""); // empty label removes legend
