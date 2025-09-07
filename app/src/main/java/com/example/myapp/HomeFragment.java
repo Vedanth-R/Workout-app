@@ -1,5 +1,9 @@
 package com.example.myapp;
 
+import static android.content.Context.MODE_PRIVATE;
+import static com.example.myapp.NutritionFragment.KEY_LAST_7_DAYS;
+import static com.example.myapp.NutritionFragment.PREFS_NAME;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,17 +32,20 @@ import com.example.myapp.model.Food;
 import com.example.myapp.model.Trophy;
 import com.example.myapp.trophies.TrophiesAdapter;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.MarkerView;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.utils.MPPointF;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
@@ -48,8 +55,11 @@ import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class HomeFragment extends Fragment {
 
@@ -75,6 +85,7 @@ public class HomeFragment extends Fragment {
         super.onResume();
         loadCaloriesToday();
         loadWeeklyWorkouts();
+        setupChartWithRealData();
 
         if (trophiesPreviewAdapter != null) {
             List<Trophy> fresh = TrophyRepository.getInstance(requireContext()).getAll();
@@ -96,6 +107,7 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Initialize ViewModel
+
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
         // Bind views
@@ -151,22 +163,25 @@ public class HomeFragment extends Fragment {
     }
 
     private List<Integer> loadLast7DaysCalories() {
-        SharedPreferences prefs = requireActivity().getSharedPreferences("nutrition_prefs", Context.MODE_PRIVATE);
-        String json = prefs.getString("last_7_days_calories", null);
-        List<Integer> last7 = new ArrayList<>();
+        SharedPreferences prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String json = prefs.getString(KEY_LAST_7_DAYS, "{}"); // Map format
 
-        if (json != null) {
-            try {
-                JSONArray arr = new JSONArray(json);
-                for (int i = 0; i < arr.length(); i++) last7.add(arr.getInt(i));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+        Map<String, Integer> dailyCalories = new Gson().fromJson(json, new TypeToken<Map<String, Integer>>() {}.getType());
+        if (dailyCalories == null) dailyCalories = new HashMap<>();
+
+        List<Integer> last7Days = new ArrayList<>();
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_YEAR, -6); // start 6 days ago
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+        for (int i = 0; i < 7; i++) {
+            String key = sdf.format(cal.getTime());
+            last7Days.add(dailyCalories.getOrDefault(key, 0));
+            cal.add(Calendar.DAY_OF_YEAR, 1);
         }
 
-        // Make sure list always has 7 entries (fill with 0 if not enough)
-        while (last7.size() < 7) last7.add(0);
-        return last7;
+        return last7Days;
     }
     
     private void observeViewModelData() {
@@ -216,7 +231,7 @@ public class HomeFragment extends Fragment {
         // Reverse entries so newest day is on the right
         ArrayList<Entry> entries = new ArrayList<>();
         for (int i = 0; i < last7Days.size(); i++) {
-            entries.add(new Entry(i, last7Days.get(last7Days.size() - 1 - i)));
+            entries.add(new Entry(i, last7Days.get(i))); // 0 = 6 days ago, 6 = today
         }
 
         /*int labelColor = Color.BLACK; // default for light mode
@@ -242,7 +257,7 @@ public class HomeFragment extends Fragment {
         dataSet.setLineWidth(2f);
         dataSet.setCircleColor(circleColor);
         dataSet.setCircleRadius(4f);
-        dataSet.setDrawValues(true);
+        dataSet.setDrawValues(false);
         dataSet.setValueTextSize(12f);
 
         LineData lineData = new LineData(dataSet);
@@ -251,9 +266,12 @@ public class HomeFragment extends Fragment {
         // --- Create labels for last 7 days ---
         String[] days = new String[7];
         Calendar cal = Calendar.getInstance();
-        for (int i = 6; i >= 0; i--) {
-            days[i] = new SimpleDateFormat("EEE", Locale.getDefault()).format(cal.getTime());
-            cal.add(Calendar.DAY_OF_YEAR, -1);
+        cal.add(Calendar.DAY_OF_YEAR, -6); // start 6 days ago
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE", Locale.getDefault());
+
+        for (int i = 0; i < 7; i++) {
+            days[i] = sdf.format(cal.getTime());
+            cal.add(Calendar.DAY_OF_YEAR, 1);
         }
 
         // Configure X-axis
@@ -278,6 +296,22 @@ public class HomeFragment extends Fragment {
 
         // Disable description
         chartProgress.getDescription().setEnabled(false);
+
+        MarkerView marker = new MarkerView(getContext(), R.layout.marker_view) {
+            @Override
+            public void refreshContent(Entry e, Highlight highlight) {
+                TextView tv = findViewById(R.id.tvMarker);
+                tv.setText((int)e.getY() + " cal");
+                super.refreshContent(e, highlight);
+            }
+
+            @Override
+            public MPPointF getOffset() {
+                return new MPPointF(-(getWidth() / 2f), -getHeight());
+            }
+        };
+
+        chartProgress.setMarker(marker);
 
         chartProgress.invalidate();
     }
@@ -315,7 +349,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void loadCaloriesToday() {
-        SharedPreferences prefs = requireActivity().getSharedPreferences("nutrition_prefs", Context.MODE_PRIVATE);
+        SharedPreferences prefs = requireActivity().getSharedPreferences("nutrition_prefs", MODE_PRIVATE);
 
         // Compute calories today from the meals stored in SharedPreferences
         int todayCalories = getMealCalories("breakfast", prefs)

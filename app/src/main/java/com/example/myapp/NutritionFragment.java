@@ -31,9 +31,11 @@ import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 public class NutritionFragment extends Fragment {
@@ -50,10 +52,10 @@ public class NutritionFragment extends Fragment {
     private ArrayList<String> shoppingListItems;
 
     private SharedPreferences sharedPreferences;
-    private static final String PREFS_NAME = "nutrition_prefs";
+    static final String PREFS_NAME = "nutrition_prefs";
     private static final int MAX_SHOPPING_ITEMS = 50;
     private static final String PREF_LAST_RESET = "last_reset_date";
-    private static final String KEY_LAST_7_DAYS = "last_7_days_calories";
+    static final String KEY_LAST_7_DAYS = "last_7_days_calories";
 
 
     @Nullable
@@ -119,33 +121,17 @@ public class NutritionFragment extends Fragment {
 
     private void update7DayCalories(int todayCalories) {
         SharedPreferences prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String json = prefs.getString(KEY_LAST_7_DAYS, null);
+        String json = prefs.getString(KEY_LAST_7_DAYS, "{}"); // map format
 
-        List<Integer> last7Days;
-        if (json != null) {
-            try {
-                JSONArray arr = new JSONArray(json);
-                last7Days = new ArrayList<>();
-                for (int i = 0; i < arr.length(); i++) {
-                    last7Days.add(arr.getInt(i));
-                }
-            } catch (JSONException e) {
-                last7Days = new ArrayList<>();
-            }
-        } else {
-            last7Days = new ArrayList<>();
-        }
+        Map<String, Integer> dailyCalories = new Gson().fromJson(json, new TypeToken<Map<String, Integer>>(){}.getType());
+        if (dailyCalories == null) dailyCalories = new HashMap<>();
 
-        // Add today
-        if (last7Days.size() >= 7) {
-            last7Days.remove(0); // remove oldest
-        }
-        last7Days.add(todayCalories);
+        // Key = yyyy-MM-dd for today
+        String todayKey = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        dailyCalories.put(todayKey, todayCalories);
 
         // Save back
-        JSONArray newJson = new JSONArray();
-        for (int cal : last7Days) newJson.put(cal);
-        prefs.edit().putString(KEY_LAST_7_DAYS, newJson.toString()).apply();
+        prefs.edit().putString(KEY_LAST_7_DAYS, new Gson().toJson(dailyCalories)).apply();
     }
 
     // Opens FoodBottomSheet in SEARCH mode for "+" buttons
@@ -154,6 +140,7 @@ public class NutritionFragment extends Fragment {
         bottomSheet.setListener(() -> {
             updateMealCalories();
             loadCalories();
+            update7DayCalories(getTotalCalories());
         });
         bottomSheet.show(getParentFragmentManager(), "FoodBottomSheet_" + mealType);
     }
@@ -172,6 +159,7 @@ public class NutritionFragment extends Fragment {
         bottomSheet.setListener(() -> {
             updateMealCalories();
             loadCalories();
+            update7DayCalories(getTotalCalories());
         });
         bottomSheet.show(getParentFragmentManager(), "FoodBottomSheet_" + mealType);
     }
