@@ -5,25 +5,18 @@ import static com.example.myapp.NutritionFragment.KEY_LAST_7_DAYS;
 import static com.example.myapp.NutritionFragment.PREFS_NAME;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
-import androidx.navigation.NavOptions;
-import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -43,19 +36,13 @@ import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.utils.MPPointF;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -66,11 +53,8 @@ public class HomeFragment extends Fragment {
 
     private TextView tvGreeting, tvDate;
     private LineChart chartProgress;
-    private Spinner spinnerMetric;
     private TextView tvWorkoutCount, tvCaloriesToday, tvStreakCount/*, tvViewAllPR*/;
-//    private RecyclerView rvPersonalRecords;
     private MaterialButton btnQuickWorkout, btnLogMeal;
-    private FloatingActionButton fabSettings, fabChat;
     
     private HomeViewModel homeViewModel;
 
@@ -125,10 +109,6 @@ public class HomeFragment extends Fragment {
         rvAchievementsPreview = view.findViewById(R.id.rvAchievementsPreview);
         setupHomeTrophiesList();
 
-
-        // Optional: if you moved FABs into the fragment (else keep in MainActivity)
-//        fabSettings = getActivity().findViewById(R.id.fabSettings);
-
         // Observe ViewModel data
         observeViewModelData();
 
@@ -137,13 +117,6 @@ public class HomeFragment extends Fragment {
 		loadWeeklyWorkouts();
         loadCaloriesToday();
         loadDailyStreak();
-
-        // FAB click listeners
-        if (fabSettings != null) {
-            fabSettings.setOnClickListener(v -> {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
-            });
-        }
 
         // Quick Actions
         btnQuickWorkout.setOnClickListener(v -> {

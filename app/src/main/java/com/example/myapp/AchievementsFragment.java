@@ -1,33 +1,25 @@
 // AchievementsFragment.java
 package com.example.myapp;
 
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
-import java.util.List;
-
-// NEW
 import com.example.myapp.data.TrophyRepository;
 import com.example.myapp.model.Trophy;
 import com.example.myapp.trophies.TrophiesAdapter;
-import com.example.myapp.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Basic Achievements/Trophies page.
@@ -45,7 +37,6 @@ public class AchievementsFragment extends Fragment {
 
     // Overview
     private TextView tvStreakValue, tvTrophiesUnlockedValue, tvTotalWorkoutsValue, tvActiveDaysValue;
-    private LinearLayout llOverview;
 
     // Trophies
     private RecyclerView rvTrophies;
@@ -76,9 +67,6 @@ public class AchievementsFragment extends Fragment {
         setupTrophiesList();
         setupClickListeners();
 
-        // TODO: Hook into a ViewModel/Repository to load real user data & observe changes.
-        // TODO: Implement "View All" navigation to full trophies screen.
-        // TODO: Replace placeholder adapter layout with custom item_trophy layout (XML).
         // TODO: Add locked/unlocked visuals, progress, animations, and filtering (chips/tabs).
     }
 
@@ -88,7 +76,6 @@ public class AchievementsFragment extends Fragment {
         tvHeaderSubtitle = root.findViewById(R.id.tvHeaderSubtitle);
 
         // Overview
-        llOverview = root.findViewById(R.id.llOverview);
         tvStreakValue = root.findViewById(R.id.tvStreakValue);
         tvTrophiesUnlockedValue = root.findViewById(R.id.tvTrophiesUnlockedValue);
         tvTotalWorkoutsValue = root.findViewById(R.id.tvTotalWorkoutsValue);
@@ -101,13 +88,11 @@ public class AchievementsFragment extends Fragment {
 
     private void setupHeader() {
         // Minimal static content for now (can be dynamic later)
-        if (tvHeaderTitle != null) tvHeaderTitle.setText("Trophies");
-        if (tvHeaderSubtitle != null) tvHeaderSubtitle.setText("Keep progressing to unlock more");
+        if (tvHeaderTitle != null) tvHeaderTitle.setText(R.string.trophies_fragment_title);
+        if (tvHeaderSubtitle != null) tvHeaderSubtitle.setText(R.string.trophies_fragment_subtitle);
     }
 
     private void setupOverview() {
-        // Placeholder numbers for now; replace with real data later.
-        // These IDs match the XML you added.
 
         // Get data from Prefs
         int total = Prefs.getTotalWorkouts(requireContext());
@@ -123,10 +108,6 @@ public class AchievementsFragment extends Fragment {
             int unlocked = TrophyRepository.getInstance(requireContext()).getUnlockedCount();
             tvTrophiesUnlockedValue.setText(String.valueOf(unlocked));
         }
-
-
-        // TODO: Optionally style cells differently (e.g., badges/emoji), or add click-throughs.
-        // TODO: Pull these values from persistence (Room) or backend via ViewModel.
     }
 
     private void setupTrophiesList() {
@@ -191,9 +172,5 @@ public class AchievementsFragment extends Fragment {
         super.onResume();
         setupOverview(); // refresh stats when returning
     }
-
-
-
-
 
 }

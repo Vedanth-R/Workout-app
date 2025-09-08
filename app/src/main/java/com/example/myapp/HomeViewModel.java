@@ -1,5 +1,7 @@
 package com.example.myapp;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -14,7 +16,6 @@ public class HomeViewModel extends ViewModel {
     private MutableLiveData<String> date = new MutableLiveData<>();
     private MutableLiveData<Integer> workoutCount = new MutableLiveData<>();
     private MutableLiveData<Integer> caloriesBurned = new MutableLiveData<>();
-//    private MutableLiveData<Integer> streakCount = new MutableLiveData<>();
     
     public HomeViewModel() {
         // Initialize with default values
@@ -31,7 +32,6 @@ public class HomeViewModel extends ViewModel {
         // Set default values
         workoutCount.setValue(12);
         caloriesBurned.setValue(1450);
-//        streakCount.setValue(7);
     }
     
     private void setGreetingBasedOnTime() {
@@ -47,6 +47,7 @@ public class HomeViewModel extends ViewModel {
         }
         
         greeting.setValue(greetingText);
+        Log.d("HomeViewModel", "Greeting set to: " + greetingText);
     }
     
     private void setCurrentDate() {
@@ -72,10 +73,6 @@ public class HomeViewModel extends ViewModel {
         return caloriesBurned;
     }
     
-    /*public LiveData<Integer> getStreakCount() {
-        return streakCount;
-    }*/
-    
     // Methods to update data
     public void updateWorkoutCount(int count) {
         workoutCount.setValue(count);
@@ -84,10 +81,6 @@ public class HomeViewModel extends ViewModel {
     public void updateCaloriesBurned(int calories) {
         caloriesBurned.setValue(calories);
     }
-    
-    /*public void updateStreakCount(int streak) {
-        streakCount.setValue(streak);
-    }*/
     
     public void refreshData() {
         setGreetingBasedOnTime();
