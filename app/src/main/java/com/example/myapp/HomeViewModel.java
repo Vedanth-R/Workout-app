@@ -1,89 +1,136 @@
 package com.example.myapp;
 
-import android.util.Log;
+import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
+import com.example.myapp.model.Food;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
-public class HomeViewModel extends ViewModel {
-    
-    private MutableLiveData<String> greeting = new MutableLiveData<>();
-    private MutableLiveData<String> date = new MutableLiveData<>();
-    private MutableLiveData<Integer> workoutCount = new MutableLiveData<>();
-    private MutableLiveData<Integer> caloriesBurned = new MutableLiveData<>();
-    
-    public HomeViewModel() {
-        // Initialize with default values
-        initializeData();
-    }
-    
-    private void initializeData() {
-        // Set greeting based on time of day
-        setGreetingBasedOnTime();
-        
-        // Set current date
-        setCurrentDate();
-        
-        // Set default values
-        workoutCount.setValue(12);
-        caloriesBurned.setValue(1450);
-    }
-    
-    private void setGreetingBasedOnTime() {
-        int hour = new Date().getHours();
-        String greetingText;
-        
-        if (hour < 12) {
-            greetingText = "Good Morning";
-        } else if (hour < 17) {
-            greetingText = "Good Afternoon";
-        } else {
-            greetingText = "Good Evening";
+/** UI state holder for Home. */
+public class HomeViewModel extends AndroidViewModel {
+
+    /** Immutable snapshot of everything the Home screen needs. */
+    public static final class HomeUiState {
+        public final String greeting;
+        public final String date;
+        public final int workoutsThisWeek;
+        public final int dailyStreak;
+        public final int caloriesToday;
+        public final List<Integer> last7DaysCalories;
+
+        public HomeUiState(String greeting, String date, int workoutsThisWeek, int dailyStreak,
+                           int caloriesToday, List<Integer> last7DaysCalories) {
+            this.greeting = greeting;
+            this.date = date;
+            this.workoutsThisWeek = workoutsThisWeek;
+            this.dailyStreak = dailyStreak;
+            this.caloriesToday = caloriesToday;
+            this.last7DaysCalories = last7DaysCalories;
         }
-        
-        greeting.setValue(greetingText);
-        Log.d("HomeViewModel", "Greeting set to: " + greetingText);
     }
-    
-    private void setCurrentDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMMM d", Locale.getDefault());
-        String currentDate = sdf.format(new Date());
-        date.setValue(currentDate);
+
+    private final MutableLiveData<HomeUiState> state = new MutableLiveData<>();
+
+    public HomeViewModel(@NonNull Application app) {
+        super(app);
+        // Seed immediately so first frame has real values (no flicker)
+        state.setValue(buildState(app.getApplicationContext()));
     }
-    
-    // Getters for LiveData
-    public LiveData<String> getGreeting() {
-        return greeting;
+
+    public LiveData<HomeUiState> getState() {
+        return state;
     }
-    
-    public LiveData<String> getDate() {
-        return date;
+
+    /** Call when returning from Timer or whenever you want fresh numbers. */
+    public void refresh() {
+        state.setValue(buildState(getApplication().getApplicationContext()));
     }
-    
-    public LiveData<Integer> getWorkoutCount() {
-        return workoutCount;
+
+    // --------------------- Builders ---------------------
+
+    private HomeUiState buildState(Context ctx) {
+        String greeting = greetingForNow();
+        String date = new SimpleDateFormat("EEEE, MMMM d", Locale.getDefault()).format(new Date());
+        int weekly = Prefs.getWorkoutsThisWeek(ctx);
+        int daily = Prefs.getDailyStreak(ctx);
+        int caloriesToday = computeCaloriesToday(ctx);
+        List<Integer> last7 = loadLast7DaysCalories(ctx);
+        return new HomeUiState(greeting, date, weekly, daily, caloriesToday, last7);
     }
-    
-    public LiveData<Integer> getCaloriesBurned() {
-        return caloriesBurned;
+
+    private String greetingForNow() {
+        int hour = Integer.parseInt(new SimpleDateFormat("H", Locale.US).format(new Date()));
+        if (hour < 12) return "Good Morning";
+        if (hour < 17) return "Good Afternoon";
+        return "Good Evening";
     }
-    
-    // Methods to update data
-    public void updateWorkoutCount(int count) {
-        workoutCount.setValue(count);
+
+    // --------------------- Nutrition helpers (moved from Fragment) ---------------------
+
+    private int computeCaloriesToday(Context ctx) {
+        SharedPreferences prefs = ctx.getSharedPreferences("nutrition_prefs", Context.MODE_PRIVATE);
+        return getMealCalories("breakfast", prefs)
+                + getMealCalories("lunch", prefs)
+                + getMealCalories("dinner", prefs)
+                + getMealCalories("snacks", prefs);
     }
-    
-    public void updateCaloriesBurned(int calories) {
-        caloriesBurned.setValue(calories);
+
+    private int getMealCalories(String mealType, SharedPreferences prefs) {
+        String json = prefs.getString(mealType + "_foods", null);
+        if (json == null) return 0;
+
+        Gson gson = new Gson();
+        Type type = new TypeToken<List<Food>>() {}.getType();
+        List<Food> foods = gson.fromJson(json, type);
+
+        int total = 0;
+        for (Food f : foods) total += f.getCalories();
+        return total;
     }
-    
-    public void refreshData() {
-        setGreetingBasedOnTime();
-        setCurrentDate();
+
+    private List<Integer> loadLast7DaysCalories(Context ctx) {
+        // NutritionFragment.PREFS_NAME / KEY_LAST_7_DAYS should be public static
+        SharedPreferences prefs = ctx.getSharedPreferences(NutritionFragment.PREFS_NAME, Context.MODE_PRIVATE);
+        String json = prefs.getString(NutritionFragment.KEY_LAST_7_DAYS, "{}"); // Map<String, Integer>
+        Map<String, Integer> dailyCalories =
+                new Gson().fromJson(json, new TypeToken<Map<String, Integer>>() {}.getType());
+        if (dailyCalories == null) dailyCalories = new java.util.HashMap<>();
+
+        // Ensure today exists in the map (default 0)
+        String todayKey = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        if (!dailyCalories.containsKey(todayKey)) {
+            dailyCalories.put(todayKey, 0);
+            prefs.edit().putString(NutritionFragment.KEY_LAST_7_DAYS, new Gson().toJson(dailyCalories)).apply();
+        }
+
+        List<Integer> last7Days = new ArrayList<>(7);
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_YEAR, -6); // 6 days ago
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+        for (int i = 0; i < 7; i++) {
+            String key = sdf.format(cal.getTime());
+            Integer value = dailyCalories.get(key);
+            last7Days.add(value != null ? value : 0);
+            cal.add(Calendar.DAY_OF_YEAR, 1);
+        }
+
+        return last7Days;
     }
 }

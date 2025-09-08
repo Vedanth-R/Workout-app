@@ -1,11 +1,5 @@
 package com.example.myapp;
 
-import static android.content.Context.MODE_PRIVATE;
-import static com.example.myapp.NutritionFragment.KEY_LAST_7_DAYS;
-import static com.example.myapp.NutritionFragment.PREFS_NAME;
-
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -21,33 +15,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapp.data.TrophyRepository;
-import com.example.myapp.model.Food;
 import com.example.myapp.model.Trophy;
 import com.example.myapp.trophies.TrophiesAdapter;
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.MarkerView;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.utils.MPPointF;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 public class HomeFragment extends Fragment {
 
@@ -68,16 +51,14 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        loadCaloriesToday();
-        loadWeeklyWorkouts();
-        setupChartWithRealData();
-        loadDailyStreak();
+        homeViewModel.refresh();  // pull fresh numbers after returning from Timer
 
         if (trophiesPreviewAdapter != null) {
             List<Trophy> fresh = TrophyRepository.getInstance(requireContext()).getAll();
             trophiesPreviewAdapter.setItems(fresh);
         }
     }
+
 
 
     @Nullable
@@ -92,9 +73,11 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize ViewModel
-
-        homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        // ViewModel (AndroidViewModel so we can read prefs safely)
+        homeViewModel = new ViewModelProvider(
+                this,
+                new ViewModelProvider.AndroidViewModelFactory(requireActivity().getApplication())
+        ).get(HomeViewModel.class);
 
         // Bind views
         tvGreeting = view.findViewById(R.id.tvGreeting);
@@ -109,261 +92,25 @@ public class HomeFragment extends Fragment {
         rvAchievementsPreview = view.findViewById(R.id.rvAchievementsPreview);
         setupHomeTrophiesList();
 
-        // Observe ViewModel data
-        observeViewModelData();
+        // Seed immediately to avoid blank/flicker
+        HomeViewModel.HomeUiState initial = homeViewModel.getState().getValue();
+        if (initial != null) render(initial);
 
-        // Setup chart
-		setupChartWithRealData();
-		loadWeeklyWorkouts();
-        loadCaloriesToday();
-        loadDailyStreak();
+        // Observe for updates
+        homeViewModel.getState().observe(getViewLifecycleOwner(), this::render);
 
         // Quick Actions
         btnQuickWorkout.setOnClickListener(v -> {
             BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
             bottomNav.setSelectedItemId(R.id.navigation_workouts);
         });
-
         btnLogMeal.setOnClickListener(v -> {
             BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottom_navigation);
             bottomNav.setSelectedItemId(R.id.navigation_nutrition);
         });
-
-
-        // Personal Records "View All"
-//        tvViewAllPR.setOnClickListener(v -> {
-//            // TODO: open PR activity
-//        });
-
-        // Spinner listener stub
     }
 
-    private List<Integer> loadLast7DaysCalories() {
-        SharedPreferences prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String json = prefs.getString(KEY_LAST_7_DAYS, "{}"); // Map format
 
-        Map<String, Integer> dailyCalories = new Gson().fromJson(json, new TypeToken<Map<String, Integer>>() {}.getType());
-        if (dailyCalories == null) dailyCalories = new HashMap<>();
-
-        // Ensure today exists in the map (default 0)
-        String todayKey = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        if (!dailyCalories.containsKey(todayKey)) {
-            dailyCalories.put(todayKey, 0);
-            prefs.edit().putString(KEY_LAST_7_DAYS, new Gson().toJson(dailyCalories)).apply();
-        }
-
-        List<Integer> last7Days = new ArrayList<>();
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_YEAR, -6); // start 6 days ago
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-
-        for (int i = 0; i < 7; i++) {
-            String key = sdf.format(cal.getTime());
-            last7Days.add(dailyCalories.getOrDefault(key, 0));
-            cal.add(Calendar.DAY_OF_YEAR, 1);
-        }
-
-        return last7Days;
-    }
-    
-    private void observeViewModelData() {
-        // Observe greeting changes
-        homeViewModel.getGreeting().observe(getViewLifecycleOwner(), greeting -> {
-            if (tvGreeting != null) {
-                tvGreeting.setText(greeting);
-            }
-        });
-        
-        // Observe date changes
-        homeViewModel.getDate().observe(getViewLifecycleOwner(), date -> {
-            if (tvDate != null) {
-                tvDate.setText(date);
-            }
-        });
-        
-        // Observe workout count changes
-        /*homeViewModel.getWorkoutCount().observe(getViewLifecycleOwner(), count -> {
-            if (tvWorkoutCount != null) {
-//                tvWorkoutCount.setText(String.valueOf(count));
-                int weekly = Prefs.getWorkoutsThisWeek(requireContext());
-                tvWorkoutCount.setText(String.valueOf(weekly));
-            }
-        });
-*/
-
-        
-        // Observe streak count changes
-        /*homeViewModel.getStreakCount().observe(getViewLifecycleOwner(), streak -> {
-            if (tvStreakCount != null) {
-                tvStreakCount.setText(String.valueOf(streak));
-            }
-        });*/
-    }
-
-    private void loadWeeklyWorkouts() {
-        int weekly = Prefs.getWorkoutsThisWeek(requireContext());
-        if (tvWorkoutCount != null) {
-            tvWorkoutCount.setText(String.valueOf(weekly));
-        }
-    }
-
-    private void loadDailyStreak() {
-        int daily = Prefs.getDailyStreak(requireContext());
-        if (tvStreakCount != null) {
-            tvStreakCount.setText(String.valueOf(daily));
-        }
-    }
-
-    private void setupChartWithRealData() {
-        List<Integer> last7Days = loadLast7DaysCalories();
-
-        // Reverse entries so newest day is on the right
-        ArrayList<Entry> entries = new ArrayList<>();
-        for (int i = 0; i < last7Days.size(); i++) {
-            entries.add(new Entry(i, last7Days.get(i))); // 0 = 6 days ago, 6 = today
-        }
-
-        /*int labelColor = Color.BLACK; // default for light mode
-        int lineColor = Color.BLACK;
-        int circleColor = Color.BLACK;
-
-        int nightModeFlags =
-                getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-            labelColor = Color.WHITE;
-            lineColor = Color.WHITE;
-            circleColor = Color.WHITE;
-        }*/
-
-        int labelColor = Color.WHITE; // use dark mode colors only
-            int lineColor = Color.WHITE;
-        int circleColor = Color.WHITE;
-
-        // Line dataset
-        LineDataSet dataSet = new LineDataSet(entries, ""); // empty label removes legend
-        dataSet.setColor(lineColor);
-        dataSet.setValueTextColor(labelColor);
-        dataSet.setLineWidth(2f);
-        dataSet.setCircleColor(circleColor);
-        dataSet.setCircleRadius(4f);
-        dataSet.setDrawValues(false);
-        dataSet.setValueTextSize(12f);
-
-        LineData lineData = new LineData(dataSet);
-        chartProgress.setData(lineData);
-
-        // --- Create labels for last 7 days ---
-        String[] days = new String[7];
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_YEAR, -6); // start 6 days ago
-        SimpleDateFormat sdf = new SimpleDateFormat("EEE", Locale.getDefault());
-
-        for (int i = 0; i < 7; i++) {
-            days[i] = sdf.format(cal.getTime());
-            cal.add(Calendar.DAY_OF_YEAR, 1);
-        }
-
-        // Configure X-axis
-        XAxis xAxis = chartProgress.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setDrawGridLines(false);
-        xAxis.setTextColor(labelColor);
-        xAxis.setGranularity(1f);
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(days));
-
-        // Configure Y-axis
-        YAxis leftAxis = chartProgress.getAxisLeft();
-        leftAxis.setTextColor(labelColor);
-        leftAxis.setDrawGridLines(false);
-        leftAxis.setAxisMinimum(0f);
-
-        YAxis rightAxis = chartProgress.getAxisRight();
-        rightAxis.setEnabled(false);
-
-        // Remove legend
-        chartProgress.getLegend().setEnabled(false);
-
-        // Disable description
-        chartProgress.getDescription().setEnabled(false);
-
-        MarkerView marker = new MarkerView(getContext(), R.layout.marker_view) {
-            @Override
-            public void refreshContent(Entry e, Highlight highlight) {
-                TextView tv = findViewById(R.id.tvMarker);
-                tv.setText((int)e.getY() + " cal");
-                super.refreshContent(e, highlight);
-            }
-
-            @Override
-            public MPPointF getOffset() {
-                return new MPPointF(-(getWidth() / 2f), -getHeight());
-            }
-        };
-
-        chartProgress.setMarker(marker);
-
-        chartProgress.invalidate();
-    }
-
-    private void setupChartWithDummyData() {
-        ArrayList<Entry> entries = new ArrayList<>();
-        entries.add(new Entry(0, 80));
-        entries.add(new Entry(1, 100));
-        entries.add(new Entry(2, 95));
-        entries.add(new Entry(3, 120));
-        entries.add(new Entry(4, 110));
-        entries.add(new Entry(5, 130));
-        entries.add(new Entry(6, 125));
-
-        LineDataSet dataSet = new LineDataSet(entries, "Weekly Progress");
-        dataSet.setColor(0xFF6200EE); // Primary color
-        dataSet.setValueTextColor(0xFF000000);
-        dataSet.setLineWidth(2f);
-        dataSet.setCircleColor(0xFF6200EE);
-        dataSet.setCircleRadius(4f);
-        dataSet.setDrawValues(true);
-
-        LineData lineData = new LineData(dataSet);
-        chartProgress.setData(lineData);
-
-        // X & Y axis settings
-        XAxis xAxis = chartProgress.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setDrawGridLines(false);
-
-
-        chartProgress.getAxisRight().setEnabled(false);
-        chartProgress.getDescription().setEnabled(false);
-        chartProgress.invalidate();
-    }
-
-    private void loadCaloriesToday() {
-        SharedPreferences prefs = requireActivity().getSharedPreferences("nutrition_prefs", MODE_PRIVATE);
-
-        // Compute calories today from the meals stored in SharedPreferences
-        int todayCalories = getMealCalories("breakfast", prefs)
-                + getMealCalories("lunch", prefs)
-                + getMealCalories("dinner", prefs)
-                + getMealCalories("snacks", prefs);
-
-        if (tvCaloriesToday != null) {
-            tvCaloriesToday.setText(String.valueOf(todayCalories));
-        }
-    }
-
-    private int getMealCalories(String mealType, SharedPreferences prefs) {
-        String json = prefs.getString(mealType + "_foods", null);
-        if (json == null) return 0;
-
-        Gson gson = new Gson();
-        Type type = new TypeToken<List<Food>>() {}.getType();
-        List<Food> foods = gson.fromJson(json, type);
-
-        int total = 0;
-        for (Food f : foods) total += f.getCalories();
-        return total;
-    }
 
     private void setupHomeTrophiesList() {
         rvAchievementsPreview.setLayoutManager(
@@ -399,6 +146,83 @@ public class HomeFragment extends Fragment {
             }
         });
     };
+
+    private void render(HomeViewModel.HomeUiState s) {
+        if (tvGreeting != null) tvGreeting.setText(s.greeting);
+        if (tvDate != null) tvDate.setText(s.date);
+        if (tvWorkoutCount != null) tvWorkoutCount.setText(String.valueOf(s.workoutsThisWeek));
+        if (tvStreakCount != null) tvStreakCount.setText(String.valueOf(s.dailyStreak));
+        if (tvCaloriesToday != null) tvCaloriesToday.setText(String.valueOf(s.caloriesToday));
+        renderChart(s.last7DaysCalories);
+    }
+
+    private void renderChart(List<Integer> last7Days) {
+        if (chartProgress == null || last7Days == null || last7Days.size() != 7) return;
+
+        ArrayList<com.github.mikephil.charting.data.Entry> entries = new ArrayList<>();
+        for (int i = 0; i < last7Days.size(); i++) {
+            entries.add(new com.github.mikephil.charting.data.Entry(i, last7Days.get(i)));
+        }
+
+        int labelColor = Color.WHITE;
+        int lineColor = Color.WHITE;
+        int circleColor = Color.WHITE;
+
+        com.github.mikephil.charting.data.LineDataSet dataSet =
+                new com.github.mikephil.charting.data.LineDataSet(entries, "");
+        dataSet.setColor(lineColor);
+        dataSet.setValueTextColor(labelColor);
+        dataSet.setLineWidth(2f);
+        dataSet.setCircleColor(circleColor);
+        dataSet.setCircleRadius(4f);
+        dataSet.setDrawValues(false);
+        dataSet.setValueTextSize(12f);
+
+        com.github.mikephil.charting.data.LineData lineData = new com.github.mikephil.charting.data.LineData(dataSet);
+        chartProgress.setData(lineData);
+
+        // Labels for last 7 days
+        String[] days = new String[7];
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_YEAR, -6);
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE", Locale.getDefault());
+        for (int i = 0; i < 7; i++) {
+            days[i] = sdf.format(cal.getTime());
+            cal.add(Calendar.DAY_OF_YEAR, 1);
+        }
+
+        XAxis xAxis = chartProgress.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+        xAxis.setTextColor(labelColor);
+        xAxis.setGranularity(1f);
+        xAxis.setValueFormatter(new com.github.mikephil.charting.formatter.IndexAxisValueFormatter(days));
+
+        YAxis leftAxis = chartProgress.getAxisLeft();
+        leftAxis.setTextColor(labelColor);
+        leftAxis.setDrawGridLines(false);
+        leftAxis.setAxisMinimum(0f);
+
+        chartProgress.getAxisRight().setEnabled(false);
+        chartProgress.getLegend().setEnabled(false);
+        chartProgress.getDescription().setEnabled(false);
+
+        com.github.mikephil.charting.components.MarkerView marker =
+                new com.github.mikephil.charting.components.MarkerView(getContext(), R.layout.marker_view) {
+                    @Override public void refreshContent(Entry e, Highlight highlight) {
+                        TextView tv = findViewById(R.id.tvMarker);
+                        tv.setText((int) e.getY() + " cal");
+                        super.refreshContent(e, highlight);
+                    }
+                    @Override public MPPointF getOffset() {
+                        return new MPPointF(-(getWidth() / 2f), -getHeight());
+                    }
+                };
+
+        chartProgress.setMarker(marker);
+        chartProgress.invalidate();
+    }
+
 
     @Override
     public void onStart() {
