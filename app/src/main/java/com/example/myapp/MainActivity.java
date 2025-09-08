@@ -3,12 +3,14 @@ package com.example.myapp;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.myapp.data.TrophyRepository;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -31,20 +33,72 @@ public class MainActivity extends AppCompatActivity {
         // Setup Navigation
         setupNavigation();
 
+        ViewPager2 viewPager = findViewById(R.id.viewPager);
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
+
+        viewPager.setAdapter(new TabPagerAdapter(this));
+        viewPager.setOffscreenPageLimit(4); // keep all five alive; timers and scrolls won’t reset
+
+// When you swipe, update the bottom nav selection
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override public void onPageSelected(int position) {
+                int itemId = switch (position) {
+                    case 0 -> R.id.navigation_workouts;
+                    case 1 -> R.id.navigation_nutrition;
+                    case 2 -> R.id.navigation_home;
+                    case 3 -> R.id.navigation_timer;
+                    case 4 -> R.id.navigation_achievements;
+                    default -> R.id.navigation_home;
+                };
+                if (bottomNav.getSelectedItemId() != itemId) {
+                    bottomNav.setSelectedItemId(itemId);
+                }
+            }
+        });
+
+	// When you tap a nav item, update the pager
+        bottomNav.setOnItemSelectedListener(item -> {
+            int page;
+            if (item.getItemId() == R.id.navigation_workouts) page = 0;
+            else if (item.getItemId() == R.id.navigation_nutrition) page = 1;
+            else if (item.getItemId() == R.id.navigation_home) page = 2;
+            else if (item.getItemId() == R.id.navigation_timer) page = 3;
+            else if (item.getItemId() == R.id.navigation_achievements) page = 4;
+            else page = 2;
+            if (viewPager.getCurrentItem() != page) {
+                viewPager.setCurrentItem(page, true);
+            }
+            return true;
+        });
+
+	// Optional: start on Home and remember it across process death
+        int startIndex = 2;
+        if (savedInstanceState != null) {
+            startIndex = savedInstanceState.getInt("tabIndex", 2);
+        }
+        viewPager.setCurrentItem(startIndex, false);
+
+
     }
 
-    /*~~~~~~~~~~~~~~~~~~~~~~~~~TROPHY~~~~~~~~~~~~~~~~~~~~~~~~~*/
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        ViewPager2 viewPager = findViewById(R.id.viewPager);
+        outState.putInt("tabIndex", viewPager.getCurrentItem());
+    }
+
+
     @Override
     protected void onResume() {
         super.onResume();
-        TrophyRepository.getInstance(this).onAppOpenedToday(); // NEW
+        TrophyRepository.getInstance(this).onAppOpenedToday();
     }
-	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
     private void setupNavigation() {
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment);
-        
+
         NavController navController = navHostFragment.getNavController();
         
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);

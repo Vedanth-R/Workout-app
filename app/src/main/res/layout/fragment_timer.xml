@@ -10,24 +10,14 @@
     android:padding="20dp"
     android:fillViewport="true"
     android:clipToPadding="false"
-    tools:context=".TimerFragment">
+    tools:context=".TimerFragment"
+    android:scrollbars="none"
+    android:fadeScrollbars="false">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/trainRoot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
-        <!-- keep ALL your existing children here, unchanged except for the edits noted in this answer -->
-        <!-- Header -->
-        <!--<LinearLayout
-            android:id="@+id/llHeader"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="20dp"
-            android:paddingBottom="8dp"
-            android:gravity="center_vertical"
-            app:layout_constraintTop_toTopOf="parent">-->
 
         <TextView
             android:id="@+id/tvHeaderTitle"
@@ -35,28 +25,9 @@
             android:layout_height="wrap_content"
             android:text="Train"
             android:layout_weight="1"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:fontFamily="sans-serif-medium"
+            style="@style/FragmentTitle"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"/>
-
-            <!--&lt;!&ndash; One-time daily log button &ndash;&gt;
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnLogWorkoutOneTime"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:text="@string/log_workout"
-                android:contentDescription="Log workout for streak"
-                android:textColor="@color/vibrantAccent"
-                app:cornerRadius="12dp"
-                app:strokeColor="@color/vibrantAccent"
-                app:strokeWidth="2dp"
-                style="?attr/materialButtonOutlinedStyle"
-                tools:enabled="true" />-->
-
-<!--        </LinearLayout>-->
 
         <!-- Timer Display Card -->
         <com.google.android.material.card.MaterialCardView
@@ -373,7 +344,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Time: 00:00:00"
+                        tools:text="Time: 00:15:23"
                         android:textSize="16sp"
                         android:textColor="@color/textColor"/>
 
@@ -382,7 +353,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Sets: 0"
+                        tools:text="Sets: 10"
                         android:textSize="16sp"
                         android:textColor="@color/textColor"
                         android:gravity="end"/>
