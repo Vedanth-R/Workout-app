@@ -56,6 +56,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -168,6 +169,13 @@ public class HomeFragment extends Fragment {
 
         Map<String, Integer> dailyCalories = new Gson().fromJson(json, new TypeToken<Map<String, Integer>>() {}.getType());
         if (dailyCalories == null) dailyCalories = new HashMap<>();
+
+        // Ensure today exists in the map (default 0)
+        String todayKey = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        if (!dailyCalories.containsKey(todayKey)) {
+            dailyCalories.put(todayKey, 0);
+            prefs.edit().putString(KEY_LAST_7_DAYS, new Gson().toJson(dailyCalories)).apply();
+        }
 
         List<Integer> last7Days = new ArrayList<>();
         Calendar cal = Calendar.getInstance();

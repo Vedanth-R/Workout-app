@@ -387,12 +387,14 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="24dp"
+            android:gravity="center_vertical">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnQuickWorkout"
                 android:layout_width="0dp"
-                android:layout_height="64dp"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
                 android:layout_weight="1"
                 android:layout_marginEnd="10dp"
                 android:text="@string/quick_start_workout"
@@ -401,12 +403,13 @@
                 app:icon="@drawable/ic_workouts"
                 app:iconTint="@color/white"
                 app:cornerRadius="16dp"
-                style="@style/Widget.Material3.Button.UnelevatedButton" />
+                style="@style/Widget.Material3.Button" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogMeal"
                 android:layout_width="0dp"
-                android:layout_height="64dp"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
                 android:layout_weight="1"
                 android:layout_marginStart="10dp"
                 android:text="@string/log_meal"
