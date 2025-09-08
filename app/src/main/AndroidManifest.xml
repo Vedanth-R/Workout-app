@@ -17,36 +17,10 @@
         android:theme="@style/Theme.MyApp"
         tools:targetApi="31">
 
-        <activity
-            android:name=".chatbot"
-            android:exported="false" />
-        <activity
-            android:name=".RegisterActivity"
-            android:exported="false" />
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBtDHVC_z3vpYPZx0HhQEo33BDq0mX8gdU" />
 
-        <activity
-            android:name=".Goals"
-            android:exported="false" />
-        <activity
-            android:name=".StopwatchActivity"
-            android:exported="false" />
-        <activity
-            android:name=".Stretching"
-            android:exported="false" />
-        <activity
-            android:name=".LoginActivity"
-            android:exported="true">
-        </activity>
-        <activity
-            android:name=".WorkoutsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".SettingsActivity"
-            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

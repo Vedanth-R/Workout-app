@@ -1,22 +1,17 @@
 package com.example.myapp;
 
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
-
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.myapp.data.TrophyRepository;
-import com.example.myapp.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 
 public class MainActivity extends AppCompatActivity {
@@ -35,13 +30,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Setup Navigation
         setupNavigation();
-
-//        FloatingActionButton fab = findViewById(R.id.fabSettings);
-//        fab.setOnClickListener(v -> {
-//            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-//            startActivity(intent);
-//        });
-
 
     }
 
