@@ -105,20 +105,25 @@ public class HomeViewModel extends AndroidViewModel {
     }
 
     private List<Integer> loadLast7DaysCalories(Context ctx) {
-        // NutritionFragment.PREFS_NAME / KEY_LAST_7_DAYS should be public static
         SharedPreferences prefs = ctx.getSharedPreferences(NutritionFragment.PREFS_NAME, Context.MODE_PRIVATE);
         String json = prefs.getString(NutritionFragment.KEY_LAST_7_DAYS, "{}"); // Map<String, Integer>
         Map<String, Integer> dailyCalories =
                 new Gson().fromJson(json, new TypeToken<Map<String, Integer>>() {}.getType());
         if (dailyCalories == null) dailyCalories = new java.util.HashMap<>();
 
-        // Ensure today exists in the map (default 0)
+        // Format today
         String todayKey = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        if (!dailyCalories.containsKey(todayKey)) {
-            dailyCalories.put(todayKey, 0);
-            prefs.edit().putString(NutritionFragment.KEY_LAST_7_DAYS, new Gson().toJson(dailyCalories)).apply();
-        }
 
+        // 🔑 Always recalc today's calories live
+        int caloriesToday = computeCaloriesToday(ctx);
+        dailyCalories.put(todayKey, caloriesToday);
+
+        // Save back so NutritionFragment stays in sync
+        prefs.edit()
+                .putString(NutritionFragment.KEY_LAST_7_DAYS, new Gson().toJson(dailyCalories))
+                .apply();
+
+        // Build last 7 days list
         List<Integer> last7Days = new ArrayList<>(7);
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_YEAR, -6); // 6 days ago

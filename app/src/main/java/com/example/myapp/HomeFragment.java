@@ -79,6 +79,8 @@ public class HomeFragment extends Fragment {
                 new ViewModelProvider.AndroidViewModelFactory(requireActivity().getApplication())
         ).get(HomeViewModel.class);
 
+        homeViewModel.refresh();
+
         // Bind views
         tvGreeting = view.findViewById(R.id.tvGreeting);
         tvDate = view.findViewById(R.id.tvDate);
