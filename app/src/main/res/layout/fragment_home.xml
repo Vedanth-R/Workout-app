@@ -33,7 +33,7 @@
                     android:id="@+id/tvGreeting"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Hello, User!"
+                    tools:text="[Greeting], User!"
                     android:textSize="32sp"
                     android:textStyle="bold"
                     android:textColor="@color/white"
@@ -43,7 +43,7 @@
                     android:id="@+id/tvDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Today, January 15"
+                    tools:text="Today, [date]"
                     android:textSize="16sp"
                     android:textColor="@color/hintColor"
                     android:layout_marginTop="4dp" />
@@ -125,7 +125,7 @@
                         android:id="@+id/tvWorkoutCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text=""
+                        tools:text="0"
                         android:textSize="36sp"
                         android:textColor="@color/vibrantAccent"
                         android:textStyle="bold"
@@ -165,7 +165,7 @@
                         android:id="@+id/tvCaloriesToday"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text=""
+                        tools:text="0"
                         android:textSize="36sp"
                         android:textColor="@color/vibrantAccent"
                         android:textStyle="bold"
@@ -228,11 +228,11 @@
                             android:id="@+id/tvStreakCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text=""
                             android:textSize="40sp"
                             android:textColor="@color/white"
                             android:textStyle="bold"
-                            android:fontFamily="sans-serif-medium" />
+                            android:fontFamily="sans-serif-medium"
+                            tools:text="0" />
 
                         <TextView
                             android:layout_width="wrap_content"

@@ -87,10 +87,7 @@ public class HomeFragment extends Fragment {
         loadCaloriesToday();
         loadWeeklyWorkouts();
         setupChartWithRealData();
-
-        if (tvStreakCount != null) {
-            tvStreakCount.setText(String.valueOf(Prefs.getCurrentStreak(requireContext())));
-        }
+        loadDailyStreak();
 
         if (trophiesPreviewAdapter != null) {
             List<Trophy> fresh = TrophyRepository.getInstance(requireContext()).getAll();
@@ -139,6 +136,7 @@ public class HomeFragment extends Fragment {
 		setupChartWithRealData();
 		loadWeeklyWorkouts();
         loadCaloriesToday();
+        loadDailyStreak();
 
         // FAB click listeners
         if (fabSettings != null) {
@@ -234,6 +232,13 @@ public class HomeFragment extends Fragment {
         int weekly = Prefs.getWorkoutsThisWeek(requireContext());
         if (tvWorkoutCount != null) {
             tvWorkoutCount.setText(String.valueOf(weekly));
+        }
+    }
+
+    private void loadDailyStreak() {
+        int daily = Prefs.getDailyStreak(requireContext());
+        if (tvStreakCount != null) {
+            tvStreakCount.setText(String.valueOf(daily));
         }
     }
 
