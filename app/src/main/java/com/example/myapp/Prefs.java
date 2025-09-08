@@ -4,8 +4,10 @@ package com.example.myapp;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -23,6 +25,13 @@ public final class Prefs {
     private static final String KEY_ACTIVE_MONTH = "active_month"; // "yyyyMM"
     private static final String KEY_ACTIVE_DAYS_SET = "active_days_set"; // Set<String> of "yyyyMMdd"
 
+    public static final String KEY_STREAK_COUNT = "dailyStreak";
+    private static final String KEY_LAST_LOGGED_YMD = "lastLoggedYmd";
+
+    public static final String KEY_DAILY_STREAK = "dailyStreak";
+    public static final String KEY_LAST_DAY_WITH_WORKOUT_YMD = "lastDayWithWorkoutYmd";
+
+
 
     private Prefs() {}
 
@@ -32,9 +41,9 @@ public final class Prefs {
 
     /* -------------------- Total Workouts -------------------- */
 
-    public static int getTotalWorkouts(Context ctx) {
+    /*public static int getTotalWorkouts(Context ctx) {
         return sp(ctx).getInt(KEY_TOTAL_WORKOUTS, 0);
-    }
+    }*/
 
     public static void incrementTotalWorkouts(Context ctx) {
         SharedPreferences s = sp(ctx);
@@ -46,31 +55,28 @@ public final class Prefs {
 
     public static int getWorkoutsThisWeek(Context ctx) {
         SharedPreferences s = sp(ctx);
-        String storedWeekStart = s.getString(KEY_WEEK_START_YMD, "");
-        String currentWeekStart = currentWeekStartYmd();
-
-        // If the stored week is stale (or empty), treat current count as 0 for this week.
-        if (!currentWeekStart.equals(storedWeekStart)) {
-            return 0;
-        }
+        String currentWeek = currentWeekStartYmd();
+        String storedWeek = s.getString(KEY_WEEK_START_YMD, "");
+        if (!currentWeek.equals(storedWeek)) return 0; // week rolled over
         return s.getInt(KEY_WORKOUTS_THIS_WEEK, 0);
     }
 
     public static void incrementWorkoutsThisWeek(Context ctx) {
         SharedPreferences s = sp(ctx);
-        String currentWeekStart = currentWeekStartYmd();
-        String storedWeekStart = s.getString(KEY_WEEK_START_YMD, "");
+        String currentWeek = currentWeekStartYmd(); // you already have this
+        String storedWeek = s.getString(KEY_WEEK_START_YMD, "");
+        int count = s.getInt(KEY_WORKOUTS_THIS_WEEK, 0);
 
-        if (!currentWeekStart.equals(storedWeekStart)) {
-            // New week just started → reset to 1 and update the anchor
-            s.edit()
-                    .putString(KEY_WEEK_START_YMD, currentWeekStart)
-                    .putInt(KEY_WORKOUTS_THIS_WEEK, 1)
-                    .apply();
-        } else {
-            int current = s.getInt(KEY_WORKOUTS_THIS_WEEK, 0);
-            s.edit().putInt(KEY_WORKOUTS_THIS_WEEK, current + 1).apply();
+        if (!currentWeek.equals(storedWeek)) {
+            storedWeek = currentWeek;
+            count = 0;
         }
+        count += 1;
+
+        s.edit()
+                .putString(KEY_WEEK_START_YMD, storedWeek)
+                .putInt(KEY_WORKOUTS_THIS_WEEK, count)
+                .apply();
     }
 
     /* -------------------- Week boundary (Sunday start) -------------------- */
@@ -117,9 +123,9 @@ public final class Prefs {
 
 // ----------------------- Public getters -----------------------
 
-    public static int getWeeklyStreak(Context ctx) {
-        return sp(ctx).getInt(KEY_WEEKLY_STREAK, 0);
-    }
+//    public static int getWeeklyStreak(Context ctx) {
+//        return sp(ctx).getInt(KEY_WEEKLY_STREAK, 0);
+//    }
 
     public static int getActiveDaysThisMonth(Context ctx) {
         SharedPreferences s = sp(ctx);
@@ -135,34 +141,59 @@ public final class Prefs {
     public static void updateWeeklyStreakOnWorkout(Context ctx) {
         SharedPreferences s = sp(ctx);
 
+        // ---- Weekly streak logic (unchanged from before) ----
         String currentWeekStart = currentWeekStartYmd();
         String lastWeekStart = s.getString(KEY_LAST_WEEK_WITH_WORKOUT_YMD, "");
-        int streak = s.getInt(KEY_WEEKLY_STREAK, 0);
+        int weeklyStreak = s.getInt(KEY_WEEKLY_STREAK, 0);
 
-        if (currentWeekStart.equals(lastWeekStart)) {
-            // Already counted a workout for this week → nothing to do
-            return;
-        }
-
-        if (lastWeekStart.isEmpty()) {
-            // First ever week
-            streak = 1;
-        } else {
-            // If current week is exactly the next week after last → continue streak
-            String expectedNextWeek = addDaysYmd(lastWeekStart, 7);
-            if (expectedNextWeek.equals(currentWeekStart)) {
-                streak += 1;
+        if (!currentWeekStart.equals(lastWeekStart)) {
+            if (lastWeekStart.isEmpty()) {
+                // First ever week
+                weeklyStreak = 1;
             } else {
-                // Gap of >= 1 empty week → reset streak
-                streak = 1;
+                // If current week is exactly the next week after last → continue streak
+                String expectedNextWeek = addDaysYmd(lastWeekStart, 7);
+                if (expectedNextWeek.equals(currentWeekStart)) {
+                    weeklyStreak += 1;
+                } else {
+                    // Gap of >= 1 empty week → reset streak
+                    weeklyStreak = 1;
+                }
             }
+
+            s.edit()
+                    .putString(KEY_LAST_WEEK_WITH_WORKOUT_YMD, currentWeekStart)
+                    .putInt(KEY_WEEKLY_STREAK, weeklyStreak)
+                    .apply();
         }
 
-        s.edit()
-                .putString(KEY_LAST_WEEK_WITH_WORKOUT_YMD, currentWeekStart)
-                .putInt(KEY_WEEKLY_STREAK, streak)
-                .apply();
+        // ---- NEW: Daily streak logic ----
+        String today = ymd(new Date());
+        String lastDay = s.getString(KEY_LAST_DAY_WITH_WORKOUT_YMD, "");
+        int dailyStreak = s.getInt(KEY_DAILY_STREAK, 0);
+
+        if (!today.equals(lastDay)) {
+            if (lastDay.isEmpty()) {
+                // First ever workout
+                dailyStreak = 1;
+            } else {
+                // Was yesterday? Continue streak
+                String expectedYesterday = addDaysYmd(today, -1);
+                if (expectedYesterday.equals(lastDay)) {
+                    dailyStreak += 1;
+                } else {
+                    // Missed at least one day → reset streak
+                    dailyStreak = 1;
+                }
+            }
+
+            s.edit()
+                    .putString(KEY_LAST_DAY_WITH_WORKOUT_YMD, today)
+                    .putInt(KEY_DAILY_STREAK, dailyStreak)
+                    .apply();
+        }
     }
+
 
     /** Call this ONCE when a workout is finally saved/confirmed. */
     public static void markActiveDayThisMonth(Context ctx) {
@@ -240,6 +271,113 @@ public final class Prefs {
 
     private static int safeSizeOfStringSet(java.util.Set<String> set) {
         return (set == null) ? 0 : set.size();
+    }
+
+    // DAILY HOMEPAGE STREAK //
+    private static String ymd(Date d) {
+        return new SimpleDateFormat("yyyyMMdd", Locale.US).format(d);
+    }
+
+    private static Date parseYmd(String ymd) {
+        try {
+            return new SimpleDateFormat("yyyyMMdd", Locale.US).parse(ymd);
+        } catch (ParseException e) {
+            return null;
+        }
+    }
+
+    private static boolean isYesterday(String lastYmd, String todayYmd) {
+        if (lastYmd == null) return false;
+        Date last = parseYmd(lastYmd);
+        Date today = parseYmd(todayYmd);
+        if (last == null || today == null) return false;
+
+        Calendar c = Calendar.getInstance();
+        c.setTime(last);
+        c.add(Calendar.DAY_OF_YEAR, 1);
+        String dayAfterLast = ymd(c.getTime());
+        return dayAfterLast.equals(todayYmd);
+    }
+
+    /** Call this exactly when a workout is logged for the day. Idempotent per day. *//*
+    public static int updateWeeklyStreakOnWorkout(Context ctx) {
+        SharedPreferences prefs = sp(ctx);
+        String today = ymd(new Date());
+        String last = prefs.getString(KEY_LAST_LOGGED_YMD, null);
+        int streak = prefs.getInt(KEY_STREAK_COUNT, 0);
+
+        // Already counted today? Do nothing.
+        if (today.equals(last)) {
+            return streak;
+        }
+
+        if (isYesterday(last, today)) {
+            streak = Math.max(1, streak + 1);
+        } else {
+            // Missed at least one full day: reset to 1 (today)
+            streak = 1;
+        }
+
+        prefs.edit()
+                .putString(KEY_LAST_LOGGED_YMD, today)
+                .putInt(KEY_STREAK_COUNT, streak)
+                .apply();
+
+        return streak;
+    }*/
+
+    /** Read without modifying. */
+    public static int getCurrentStreak(Context ctx) {
+        return sp(ctx).getInt(KEY_STREAK_COUNT, 0);
+    }
+
+
+    // REWORK
+
+    public static void onWorkoutConfirmed(Context ctx) {
+        SharedPreferences s = sp(ctx);
+
+        // ---------- PER-SESSION: always increment ----------
+        // 1) Total workouts (multiple sessions per day count)
+        int total = s.getInt(KEY_TOTAL_WORKOUTS, 0) + 1;
+        s.edit().putInt(KEY_TOTAL_WORKOUTS, total).apply();
+
+        // 2) Weekly rolling counter (multiple sessions per week count)
+        incrementWorkoutsThisWeek(ctx);
+
+        // ---------- PER-DAY: idempotent ----------
+        String today = ymd(new Date());
+        String lastDay = s.getString(KEY_LAST_DAY_WITH_WORKOUT_YMD, "");
+
+        if (!today.equals(lastDay)) {
+            // Weekly streak (idempotent since it keys off week start)
+            updateWeeklyStreakOnWorkout(ctx);
+
+            // Daily streak
+            int daily = s.getInt(KEY_DAILY_STREAK, 0);
+            String expectedYesterday = addDaysYmd(today, -1);
+            daily = expectedYesterday.equals(lastDay) ? Math.max(1, daily + 1) : 1;
+
+            s.edit()
+                    .putString(KEY_LAST_DAY_WITH_WORKOUT_YMD, today)
+                    .putInt(KEY_DAILY_STREAK, daily)
+                    .apply();
+
+            // Active-day heatmap or similar
+            markActiveDayThisMonth(ctx);
+        }
+    }
+
+
+    // Convenience readers for UI:
+    public static int getDailyStreak(Context ctx) {
+        return sp(ctx).getInt(KEY_DAILY_STREAK, 0);
+    }
+    public static int getWeeklyStreak(Context ctx) {
+        return sp(ctx).getInt(KEY_WEEKLY_STREAK, 0);
+    }
+    public static int getTotalWorkouts(Context ctx) {
+        return sp(ctx).getInt(KEY_TOTAL_WORKOUTS, 0);
     }
 
 }

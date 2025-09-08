@@ -14,7 +14,7 @@ public class HomeViewModel extends ViewModel {
     private MutableLiveData<String> date = new MutableLiveData<>();
     private MutableLiveData<Integer> workoutCount = new MutableLiveData<>();
     private MutableLiveData<Integer> caloriesBurned = new MutableLiveData<>();
-    private MutableLiveData<Integer> streakCount = new MutableLiveData<>();
+//    private MutableLiveData<Integer> streakCount = new MutableLiveData<>();
     
     public HomeViewModel() {
         // Initialize with default values
@@ -31,7 +31,7 @@ public class HomeViewModel extends ViewModel {
         // Set default values
         workoutCount.setValue(12);
         caloriesBurned.setValue(1450);
-        streakCount.setValue(7);
+//        streakCount.setValue(7);
     }
     
     private void setGreetingBasedOnTime() {
@@ -72,9 +72,9 @@ public class HomeViewModel extends ViewModel {
         return caloriesBurned;
     }
     
-    public LiveData<Integer> getStreakCount() {
+    /*public LiveData<Integer> getStreakCount() {
         return streakCount;
-    }
+    }*/
     
     // Methods to update data
     public void updateWorkoutCount(int count) {
@@ -85,9 +85,9 @@ public class HomeViewModel extends ViewModel {
         caloriesBurned.setValue(calories);
     }
     
-    public void updateStreakCount(int streak) {
+    /*public void updateStreakCount(int streak) {
         streakCount.setValue(streak);
-    }
+    }*/
     
     public void refreshData() {
         setGreetingBasedOnTime();

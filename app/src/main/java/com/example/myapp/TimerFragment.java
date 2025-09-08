@@ -41,7 +41,7 @@ public class TimerFragment extends Fragment {
     // --- UI refs ---
     private TextView tvWorkoutTimer, tvSetsCount;
     private MaterialButton btnStart, btnPauseResume, btnEnd,
-            btnCompleteSet, btnStartRest, btnLogWorkoutOneTime,
+            btnCompleteSet, btnStartRest,
             btnRestAdd15, btnRestSkip, btnSummaryDone;
     private TextView tvRestTimer, tvSummaryTime, tvSummarySets;
     private View restPanel, summaryPanel;
@@ -71,8 +71,8 @@ public class TimerFragment extends Fragment {
     private static final long DEFAULT_REST_MS = 30_000L; // 30s default—tune as you like
 
     // One-time log key
-    private static final String PREFS = "train_prefs";
-    private static final String KEY_LOG_PREFIX = "logged_"; // logged_yyyyMMdd
+//    private static final String PREFS = "train_prefs";
+//    private static final String KEY_LOG_PREFIX = "logged_"; // logged_yyyyMMdd
 
     @Nullable
     @Override
@@ -80,7 +80,7 @@ public class TimerFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_timer, container, false);
         bindViews(root);
-        configureOneTimeLogButton();
+//        configureOneTimeLogButton();
         wireEvents();
         return root;
     }
@@ -126,7 +126,7 @@ public class TimerFragment extends Fragment {
         tvSummarySets = root.findViewById(R.id.tvSummarySets);
         btnSummaryDone = root.findViewById(R.id.btnSummaryDone);
 
-        btnLogWorkoutOneTime = root.findViewById(R.id.btnLogWorkoutOneTime);
+//        btnLogWorkoutOneTime = root.findViewById(R.id.btnLogWorkoutOneTime);
     }
 
     // ------------------ Color Scheme ------------------
@@ -157,25 +157,22 @@ public class TimerFragment extends Fragment {
         btnRestSkip.setOnClickListener(v -> cancelRest());
 
         btnSummaryDone.setOnClickListener(v -> {
-            // TODO: Persist workout session details to your data layer if desired
-            // For now, just hide
-            // +1 lifetime
-            Prefs.incrementWorkoutsThisWeek(requireContext());       // +1 this week (auto-resets on week boundary)
+            // Centralized persistence: idempotent per day
+            Prefs.onWorkoutConfirmed(requireContext());
 
-            // NEW: Weekly Streak and Active Days
-            Prefs.updateWeeklyStreakOnWorkout(requireContext());
-            Prefs.markActiveDayThisMonth(requireContext());
+            // Optional: achievements hook for “workout completed”
+//            TrophyRepository.getInstance(requireContext()).onWorkoutCompleted();
 
 
             summaryPanel.setVisibility(View.GONE);
             resetUI();
         });
 
-        btnLogWorkoutOneTime.setOnClickListener(v -> {
+        /*btnLogWorkoutOneTime.setOnClickListener(v -> {
             markLoggedToday();
             btnLogWorkoutOneTime.setEnabled(false);
             Toast.makeText(requireContext(), "Workout logged for today ✅", Toast.LENGTH_SHORT).show();
-        });
+        });*/
     }
 
     // ------------------ Timer controls ------------------
@@ -361,7 +358,7 @@ public class TimerFragment extends Fragment {
 
     // ------------------ One-time daily log ------------------
 
-    private void configureOneTimeLogButton() {
+    /*private void configureOneTimeLogButton() {
         boolean alreadyLogged = isLoggedToday();
         btnLogWorkoutOneTime.setEnabled(!alreadyLogged);
         if (alreadyLogged) {
@@ -398,7 +395,7 @@ public class TimerFragment extends Fragment {
     private String todayKey() {
         // yyyyMMdd is enough granularity for "once per day"
         return new SimpleDateFormat("yyyyMMdd", Locale.US).format(new Date());
-    }
+    }*/
 
     // ------------------ Formatting helpers ------------------
 

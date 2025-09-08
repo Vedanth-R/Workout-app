@@ -88,6 +88,10 @@ public class HomeFragment extends Fragment {
         loadWeeklyWorkouts();
         setupChartWithRealData();
 
+        if (tvStreakCount != null) {
+            tvStreakCount.setText(String.valueOf(Prefs.getCurrentStreak(requireContext())));
+        }
+
         if (trophiesPreviewAdapter != null) {
             List<Trophy> fresh = TrophyRepository.getInstance(requireContext()).getAll();
             trophiesPreviewAdapter.setItems(fresh);
@@ -219,11 +223,11 @@ public class HomeFragment extends Fragment {
 
         
         // Observe streak count changes
-        homeViewModel.getStreakCount().observe(getViewLifecycleOwner(), streak -> {
+        /*homeViewModel.getStreakCount().observe(getViewLifecycleOwner(), streak -> {
             if (tvStreakCount != null) {
                 tvStreakCount.setText(String.valueOf(streak));
             }
-        });
+        });*/
     }
 
     private void loadWeeklyWorkouts() {
