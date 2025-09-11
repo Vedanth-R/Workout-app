@@ -137,62 +137,38 @@ public final class Prefs {
 
 // ----------------------- Mutations on workout save -----------------------
 
-    /** Call this ONCE when a workout is finally saved/confirmed. */
+    /** Weekly streak only. No daily logic here. */
     public static void updateWeeklyStreakOnWorkout(Context ctx) {
         SharedPreferences s = sp(ctx);
 
-        // ---- Weekly streak logic (unchanged from before) ----
         String currentWeekStart = currentWeekStartYmd();
         String lastWeekStart = s.getString(KEY_LAST_WEEK_WITH_WORKOUT_YMD, "");
         int weeklyStreak = s.getInt(KEY_WEEKLY_STREAK, 0);
 
-        if (!currentWeekStart.equals(lastWeekStart)) {
-            if (lastWeekStart.isEmpty()) {
-                // First ever week
+        if (currentWeekStart.equals(lastWeekStart)) {
+            // Already counted a workout for this week → nothing to do
+            return;
+        }
+
+        if (lastWeekStart.isEmpty()) {
+            weeklyStreak = 1;
+        } else {
+            // If current week is exactly the next week after last → continue streak
+            String expectedNextWeek = addDaysYmd(lastWeekStart, 7);
+            if (expectedNextWeek.equals(currentWeekStart)) {
+                weeklyStreak += 1;
+            } else {
+                // Gap of >= 1 empty week → reset streak
                 weeklyStreak = 1;
-            } else {
-                // If current week is exactly the next week after last → continue streak
-                String expectedNextWeek = addDaysYmd(lastWeekStart, 7);
-                if (expectedNextWeek.equals(currentWeekStart)) {
-                    weeklyStreak += 1;
-                } else {
-                    // Gap of >= 1 empty week → reset streak
-                    weeklyStreak = 1;
-                }
             }
-
-            s.edit()
-                    .putString(KEY_LAST_WEEK_WITH_WORKOUT_YMD, currentWeekStart)
-                    .putInt(KEY_WEEKLY_STREAK, weeklyStreak)
-                    .apply();
         }
 
-        // ---- NEW: Daily streak logic ----
-        String today = ymd(new Date());
-        String lastDay = s.getString(KEY_LAST_DAY_WITH_WORKOUT_YMD, "");
-        int dailyStreak = s.getInt(KEY_DAILY_STREAK, 0);
-
-        if (!today.equals(lastDay)) {
-            if (lastDay.isEmpty()) {
-                // First ever workout
-                dailyStreak = 1;
-            } else {
-                // Was yesterday? Continue streak
-                String expectedYesterday = addDaysYmd(today, -1);
-                if (expectedYesterday.equals(lastDay)) {
-                    dailyStreak += 1;
-                } else {
-                    // Missed at least one day → reset streak
-                    dailyStreak = 1;
-                }
-            }
-
-            s.edit()
-                    .putString(KEY_LAST_DAY_WITH_WORKOUT_YMD, today)
-                    .putInt(KEY_DAILY_STREAK, dailyStreak)
-                    .apply();
-        }
+        s.edit()
+                .putString(KEY_LAST_WEEK_WITH_WORKOUT_YMD, currentWeekStart)
+                .putInt(KEY_WEEKLY_STREAK, weeklyStreak)
+                .apply();
     }
+
 
 
     /** Call this ONCE when a workout is finally saved/confirmed. */
@@ -299,32 +275,6 @@ public final class Prefs {
         return dayAfterLast.equals(todayYmd);
     }
 
-    /** Call this exactly when a workout is logged for the day. Idempotent per day. *//*
-    public static int updateWeeklyStreakOnWorkout(Context ctx) {
-        SharedPreferences prefs = sp(ctx);
-        String today = ymd(new Date());
-        String last = prefs.getString(KEY_LAST_LOGGED_YMD, null);
-        int streak = prefs.getInt(KEY_STREAK_COUNT, 0);
-
-        // Already counted today? Do nothing.
-        if (today.equals(last)) {
-            return streak;
-        }
-
-        if (isYesterday(last, today)) {
-            streak = Math.max(1, streak + 1);
-        } else {
-            // Missed at least one full day: reset to 1 (today)
-            streak = 1;
-        }
-
-        prefs.edit()
-                .putString(KEY_LAST_LOGGED_YMD, today)
-                .putInt(KEY_STREAK_COUNT, streak)
-                .apply();
-
-        return streak;
-    }*/
 
     /** Read without modifying. */
     public static int getCurrentStreak(Context ctx) {
@@ -337,36 +287,33 @@ public final class Prefs {
     public static void onWorkoutConfirmed(Context ctx) {
         SharedPreferences s = sp(ctx);
 
-        // ---------- PER-SESSION: always increment ----------
-        // 1) Total workouts (multiple sessions per day count)
+        // Per-session counters
         int total = s.getInt(KEY_TOTAL_WORKOUTS, 0) + 1;
         s.edit().putInt(KEY_TOTAL_WORKOUTS, total).apply();
 
-        // 2) Weekly rolling counter (multiple sessions per week count)
-        incrementWorkoutsThisWeek(ctx);
+        incrementWorkoutsThisWeek(ctx);          // per-session weekly counter
 
-        // ---------- PER-DAY: idempotent ----------
+        // Weekly streak (does not touch daily)
+        updateWeeklyStreakOnWorkout(ctx);
+
+        // Daily streak, idempotent per calendar day
         String today = ymd(new Date());
         String lastDay = s.getString(KEY_LAST_DAY_WITH_WORKOUT_YMD, "");
-
         if (!today.equals(lastDay)) {
-            // Weekly streak (idempotent since it keys off week start)
-            updateWeeklyStreakOnWorkout(ctx);
-
-            // Daily streak
             int daily = s.getInt(KEY_DAILY_STREAK, 0);
             String expectedYesterday = addDaysYmd(today, -1);
             daily = expectedYesterday.equals(lastDay) ? Math.max(1, daily + 1) : 1;
-
+            android.util.Log.d("Prefs", "Daily streak updated to " + daily + " on " + today);
             s.edit()
                     .putString(KEY_LAST_DAY_WITH_WORKOUT_YMD, today)
                     .putInt(KEY_DAILY_STREAK, daily)
                     .apply();
 
-            // Active-day heatmap or similar
+            // Active day marking belongs with daily logic
             markActiveDayThisMonth(ctx);
         }
     }
+
 
 
     // Convenience readers for UI:
