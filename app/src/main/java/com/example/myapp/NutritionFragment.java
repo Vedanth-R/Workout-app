@@ -95,11 +95,11 @@ public class NutritionFragment extends Fragment {
         rvShoppingList.setLayoutManager(new LinearLayoutManager(getContext()));
         rvShoppingList.setAdapter(shoppingListAdapter);
 
-// Load data
+		// Load data
+        NutritionRollover.ensureDayRollover(requireContext());
         loadCalories();
         loadShoppingList();
         updateMealCalories();
-        resetMealsIfNewDay();
 
         // "+" buttons for adding/searching foods
         btnAddBreakfast.setOnClickListener(v -> openFoodBottomSheet("breakfast"));
@@ -119,20 +119,30 @@ public class NutritionFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        NutritionRollover.ensureDayRollover(requireContext());
+        loadCalories();         // render fresh totals for today
+        updateMealCalories();
+    }
+
+
     private void update7DayCalories(int todayCalories) {
         SharedPreferences prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String json = prefs.getString(KEY_LAST_7_DAYS, "{}"); // map format
+        String json = prefs.getString(KEY_LAST_7_DAYS, "{}");
 
-        Map<String, Integer> dailyCalories = new Gson().fromJson(json, new TypeToken<Map<String, Integer>>(){}.getType());
-        if (dailyCalories == null) dailyCalories = new HashMap<>();
+        Map<String, Integer> daily = new Gson().fromJson(json, new TypeToken<Map<String, Integer>>(){}.getType());
+        if (daily == null) daily = new HashMap<>();
 
-        // Key = yyyy-MM-dd for today
         String todayKey = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        dailyCalories.put(todayKey, todayCalories);
 
-        // Save back
-        prefs.edit().putString(KEY_LAST_7_DAYS, new Gson().toJson(dailyCalories)).apply();
+        // Only touch TODAY. Do not touch any other date.
+        daily.put(todayKey, todayCalories);
+
+        prefs.edit().putString(KEY_LAST_7_DAYS, new Gson().toJson(daily)).apply();
     }
+
 
     // Opens FoodBottomSheet in SEARCH mode for "+" buttons
     private void openFoodBottomSheet(String mealType) {
@@ -239,25 +249,64 @@ public class NutritionFragment extends Fragment {
         sharedPreferences.edit().putStringSet("shopping_list", itemsSet).apply();
     }
 
-    private void resetMealsIfNewDay() {
+    /*private void resetMealsIfNewDay() {
         SharedPreferences prefs = sharedPreferences;
-        String lastReset = prefs.getString(PREF_LAST_RESET, "");
 
-        // Get today's date in yyyy-MM-dd format
         String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        String lastReset = prefs.getString(PREF_LAST_RESET, null);
 
-        if (!today.equals(lastReset)) {
-            // New day → first save today’s calories into rolling 7-day list
-            int todayCalories = getTotalCalories();
-            update7DayCalories(todayCalories);
-
-            // Then reset meals safely
-            clearAllMealLogs();
-
-            // Update last reset date AFTER clearing
+        // First run on a new install/session: initialize and ensure today exists in the 7-day map
+        if (lastReset == null) {
+            ensureTodayKeyExists();
             prefs.edit().putString(PREF_LAST_RESET, today).apply();
+            return;
+        }
+
+        // Same day → nothing to do
+        if (today.equals(lastReset)) return;
+
+        // New day detected:
+        // 1) Commit yesterday's (i.e., lastReset's) total under the correct date key
+        int yTotal = getTotalCalories();
+        SharedPreferences mapPrefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String json = mapPrefs.getString(KEY_LAST_7_DAYS, "{}");
+        java.lang.reflect.Type type = new com.google.gson.reflect.TypeToken<java.util.Map<String, Integer>>() {}.getType();
+        java.util.Map<String, Integer> daily = new com.google.gson.Gson().fromJson(json, type);
+        if (daily == null) daily = new java.util.HashMap<>();
+
+        // Write yesterday under its actual date, and ensure today starts at 0
+        daily.put(lastReset, yTotal);
+        if (!daily.containsKey(today)) {
+            daily.put(today, 0);
+        }
+
+        mapPrefs.edit()
+                .putString(KEY_LAST_7_DAYS, new com.google.gson.Gson().toJson(daily))
+                .apply();
+
+        // 2) Clear meal logs so today starts clean
+        clearAllMealLogs();
+
+        // 3) Update last reset date to today
+        prefs.edit().putString(PREF_LAST_RESET, today).apply();
+    }*/
+
+    /** Ensure today's key exists in the 7-day map with a 0 default (for first run / cold start). */
+    private void ensureTodayKeyExists() {
+        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        SharedPreferences mapPrefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String json = mapPrefs.getString(KEY_LAST_7_DAYS, "{}");
+        java.lang.reflect.Type type = new com.google.gson.reflect.TypeToken<java.util.Map<String, Integer>>() {}.getType();
+        java.util.Map<String, Integer> daily = new com.google.gson.Gson().fromJson(json, type);
+        if (daily == null) daily = new java.util.HashMap<>();
+        if (!daily.containsKey(today)) {
+            daily.put(today, 0);
+            mapPrefs.edit()
+                    .putString(KEY_LAST_7_DAYS, new com.google.gson.Gson().toJson(daily))
+                    .apply();
         }
     }
+
 
     private void clearAllMealLogs() {
         String[] meals = {"breakfast", "lunch", "dinner", "snacks"};

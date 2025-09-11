@@ -45,6 +45,10 @@ public class HomeViewModel extends AndroidViewModel {
         }
     }
 
+    private static final String NUTRITION_PREFS = "nutrition_prefs";
+    private static final String KEY_LAST_UPDATED_YMD = "nutrition_lastUpdatedYmd";
+
+
     private final MutableLiveData<HomeUiState> state = new MutableLiveData<>();
 
     public HomeViewModel(@NonNull Application app) {
@@ -65,6 +69,9 @@ public class HomeViewModel extends AndroidViewModel {
     // --------------------- Builders ---------------------
 
     private HomeUiState buildState(Context ctx) {
+
+        NutritionRollover.ensureDayRollover(ctx);
+
         String greeting = greetingForNow();
         String date = new SimpleDateFormat("EEEE, MMMM d", Locale.getDefault()).format(new Date());
         int weekly = Prefs.getWorkoutsThisWeek(ctx);
@@ -84,7 +91,7 @@ public class HomeViewModel extends AndroidViewModel {
     // --------------------- Nutrition helpers (moved from Fragment) ---------------------
 
     private int computeCaloriesToday(Context ctx) {
-        SharedPreferences prefs = ctx.getSharedPreferences("nutrition_prefs", Context.MODE_PRIVATE);
+        SharedPreferences prefs = ctx.getSharedPreferences(NUTRITION_PREFS, Context.MODE_PRIVATE);
         return getMealCalories("breakfast", prefs)
                 + getMealCalories("lunch", prefs)
                 + getMealCalories("dinner", prefs)
@@ -138,4 +145,53 @@ public class HomeViewModel extends AndroidViewModel {
 
         return last7Days;
     }
+
+    @SuppressWarnings("ConstantConditions")
+    private void ensureNutritionDayRollover(Context ctx) {
+        // Date keys
+        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+        SharedPreferences meals = ctx.getSharedPreferences(NUTRITION_PREFS, Context.MODE_PRIVATE);
+        String last = meals.getString(KEY_LAST_UPDATED_YMD, null);
+
+        // First ever run: mark today and bail
+        if (last == null) {
+            meals.edit().putString(KEY_LAST_UPDATED_YMD, today).apply();
+            return;
+        }
+
+        // Same day → nothing to do
+        if (today.equals(last)) return;
+
+        // Different day → commit "yesterday" (actually 'last') and reset today
+        int yTotal = getMealCalories("breakfast", meals)
+                + getMealCalories("lunch", meals)
+                + getMealCalories("dinner", meals)
+                + getMealCalories("snacks", meals);
+
+        // Update the 7-day map under the correct date (last day), and zero today
+        SharedPreferences mapPrefs = ctx.getSharedPreferences(NutritionFragment.PREFS_NAME, Context.MODE_PRIVATE);
+        String json = mapPrefs.getString(NutritionFragment.KEY_LAST_7_DAYS, "{}");
+        java.lang.reflect.Type type = new com.google.gson.reflect.TypeToken<java.util.Map<String, Integer>>() {}.getType();
+        java.util.Map<String, Integer> daily = new com.google.gson.Gson().fromJson(json, type);
+        if (daily == null) daily = new java.util.HashMap<>();
+
+        // Write the actual last day's total and ensure today starts at 0
+        daily.put(last, yTotal);
+        daily.put(today, 0);
+
+        mapPrefs.edit()
+                .putString(NutritionFragment.KEY_LAST_7_DAYS, new com.google.gson.Gson().toJson(daily))
+                .apply();
+
+        // Clear meal lists so today starts clean
+        meals.edit()
+                .putString("breakfast_foods", "[]")
+                .putString("lunch_foods", "[]")
+                .putString("dinner_foods", "[]")
+                .putString("snacks_foods", "[]")
+                .putString(KEY_LAST_UPDATED_YMD, today)
+                .apply();
+    }
+
 }
