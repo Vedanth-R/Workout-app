@@ -7,31 +7,31 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.example.myapp.HomeFragment"
+        android:name="com.PeakForm.workoutapp.HomeFragment"
         android:label="@string/nav_home"
         tools:layout="@layout/fragment_home"/>
 
     <fragment
         android:id="@+id/navigation_workouts"
-        android:name="com.example.myapp.WorkoutsFragment"
+        android:name="com.PeakForm.workoutapp.WorkoutsFragment"
         android:label="@string/nav_workouts"
         tools:layout="@layout/fragment_workout" />
 
     <fragment
         android:id="@+id/navigation_nutrition"
-        android:name="com.example.myapp.NutritionFragment"
+        android:name="com.PeakForm.workoutapp.NutritionFragment"
         android:label="@string/nav_nutrition"
         tools:layout="@layout/fragment_nutrition" />
 
     <fragment
         android:id="@+id/navigation_timer"
-        android:name="com.example.myapp.TimerFragment"
+        android:name="com.PeakForm.workoutapp.TimerFragment"
         android:label="@string/nav_timer"
         tools:layout="@layout/fragment_timer" />
 
     <fragment
         android:id="@+id/navigation_achievements"
-        android:name="com.example.myapp.AchievementsFragment"
+        android:name="com.PeakForm.workoutapp.AchievementsFragment"
         android:label="@string/nav_achievements"
         tools:layout="@layout/fragment_achievements" />
 
